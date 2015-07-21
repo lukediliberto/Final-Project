@@ -131,7 +131,7 @@ int main()
     PlinkoChip chip1=PlinkoChip();
 
     chip1.setPosition(220,25);
-    chip1.setVelocity(0,4);
+    chip1.setVelocity(5,5);
 
 ////////////////////////////////////////////////////////////////////////////////////////
 	// Start the game loop
@@ -176,15 +176,24 @@ int main()
 
         chip1.continueVelocity();
 
+    bool isColliding=0;
 
+    //Note: All of the rectangles should be working, except maybe the bottom ones.
+    //I'm still having trouble with the pegs though.
 
+/*
     //odd pegs
         for (int i=0; i<oddSIZE; i++)
         {
-            sf::Rect<float> chipRect = chip1.getGlobalBounds();
-            sf::Rect<float> RectOI = circleVecOdd[i].getGlobalBounds();
+            sf::Vector2f position1=chip1.getPosition();
+            sf::Vector2f position2=circleVecOdd[i].getPosition();
 
-            if (chipRect.intersects(RectOI))
+            float xdistanceSquared=(position2.x-position1.x)*(position2.x-position1.x);
+            float ydistanceSquared=(position2.y-position1.y)*(position2.y-position1.y);
+
+            float distance=sqrt(xdistanceSquared+ydistanceSquared);
+
+            if (distance<=17.5) //15+2.5=17.5 (radii of peg+chip)
             {
                 //change velocity accordingly
                 sf::Vector2f position = chip1.getPosition();
@@ -196,16 +205,23 @@ int main()
 
                 chip1.setVelocity(finalVelocity.x,finalVelocity.x);
 
+                isColliding=1;
+
             }
         }
 
     //even pegs
         for (int i=0; i<evenSIZE; i++)
         {
-            sf::Rect<float> chipRect = chip1.getGlobalBounds();
-            sf::Rect<float> RectOI = circleVecEven[i].getGlobalBounds();
+            sf::Vector2f position1=chip1.getPosition();
+            sf::Vector2f position2=circleVecEven[i].getPosition();
 
-            if (chipRect.intersects(RectOI))
+            float xdistanceSquared=(position2.x-position1.x)*(position2.x-position1.x);
+            float ydistanceSquared=(position2.y-position1.y)*(position2.y-position1.y);
+
+            float distance=sqrt(xdistanceSquared+ydistanceSquared);
+
+            if (distance<=17.5) //15+2.5=17.5 (radii of peg+chip)
             {
                 //change velocity accordingly
                 sf::Vector2f position = chip1.getPosition();
@@ -216,9 +232,11 @@ int main()
                 sf::Vector2f finalVelocity = getFinalSpeed(velocity,position,otherposition);
 
                 chip1.setVelocity(finalVelocity.x,finalVelocity.x);
+
+                isColliding=1;
             }
         }
-
+*/
     //bottom rectangles
         for (int i=0; i<bottomSIZE; i++)
         {
@@ -236,11 +254,13 @@ int main()
                 sf::Vector2f finalVelocity = getFinalSpeed(velocity,position,otherposition);
 
                 chip1.setVelocity(finalVelocity.x,finalVelocity.x);
+
+                isColliding=1;
             }
         }
 
-    //border rectangles
-        for (int i=0; i<borderSIZE; i++)
+    //border rectangles (sides)
+        for (int i=0; i<(borderSIZE-1); i++)
         {
             sf::Rect<float> chipRect = chip1.getGlobalBounds();
             sf::Rect<float> RectOI = borderRect[i].getGlobalBounds();
@@ -251,20 +271,38 @@ int main()
                 sf::Vector2f position = chip1.getPosition();
                 sf::Vector2f velocity = chip1.getVelocity();
 
-                sf::Vector2f otherposition = borderRect[i].getPosition();
+                velocity.x=-velocity.x;
 
-                sf::Vector2f finalVelocity = getFinalSpeed(velocity,position,otherposition);
+                chip1.setVelocity(velocity.x,velocity.y);
 
-                chip1.setVelocity(finalVelocity.x,finalVelocity.x);
+                isColliding=1;
             }
         }
+
+        //bottom rectangle
+        for (int i=2; i<(borderSIZE); i++)
+        {
+            sf::Rect<float> chipRect = chip1.getGlobalBounds();
+            sf::Rect<float> RectOI = borderRect[i].getGlobalBounds();
+
+            if (chipRect.intersects(RectOI))
+            {
+                //stop
+                chip1.setVelocity(0,0);
+
+                isColliding=1;
+            }
+        }
+
 
         //show velocities
         sf::Vector2f velocity=chip1.getVelocity();
         cout << velocity.x << " " << velocity.y << endl;
 
-        //how to implement gravity?
 
+        //implementing gravity
+        if (!isColliding)
+            chip1.move(0,1);
 
 
 
