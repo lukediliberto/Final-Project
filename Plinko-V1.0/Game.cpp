@@ -78,6 +78,27 @@ void gamefunc()
     text3=text1;
     errorText=text1;
 
+    sf::Text binMoney[9];
+    binMoney[0].setString("$\n1\n0\n0");
+    binMoney[1].setString("$\n5\n0\n0");
+    binMoney[2].setString("$\n1\n0\n0\n0");
+    binMoney[3].setString("$\n0");
+    binMoney[4].setString("$\n1\n0\n0\n0\n0");
+    binMoney[4].setPosition(30+(45*4)+(12*(4-1)),425);
+    binMoney[5].setString("$\n0");
+    binMoney[6].setString("$\n1\n0\n0\n0");
+    binMoney[7].setString("$\n5\n0\n0");
+    binMoney[8].setString("$\n1\n0\n0");
+    for(int i = 0; i<9; i++)
+    {
+        binMoney[i].setFont(font);
+        binMoney[i].setColor(sf::Color::Green);
+        binMoney[i].setCharacterSize(12);
+        if(i != 4)
+            binMoney[i].setPosition(30+(45*i)+(12*(i-1)),435);
+    }
+
+
     text1.setString("To select Game mode, press:");
     text1.setPosition(20,100);
     text2.setString("O for Original");
@@ -391,6 +412,8 @@ void gamefunc()
             window.draw(text2);
             window.draw(text3);
         }
+	for(int i = 0; i<9; i++)
+            window.draw(binMoney[i]);
 
         if (bounceInPlaceError)
             window.draw(errorText);
