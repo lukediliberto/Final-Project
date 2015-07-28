@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Menu.h"
 #include "Game.h"
 #include <iostream>
@@ -97,6 +98,20 @@ void menufunc(float width, float height)
     sf::Sprite sprite(texture);
     sprite.setScale(.85, .98);
 
+    //Load menu music
+    sf::SoundBuffer menuBuffer, selectionBuffer;
+//    if(!menuBuffer.loadFromFile("PlinkoMenu.ogg"))
+    if(!menuBuffer.loadFromFile("plinkomenu.wav"))
+        cout<<"Error loading sound";
+    if(!selectionBuffer.loadFromFile("selection.wav"))
+        cout<<"Error loading sound";
+    sf::Sound menuMusic, selectionMusic;
+    menuMusic.setBuffer(menuBuffer);
+    menuMusic.play();
+    menuMusic.setLoop(true);
+    selectionMusic.setBuffer(selectionBuffer);
+
+
 	// Start the game loop
     while (menuwindow.isOpen())
     {
@@ -109,6 +124,7 @@ void menufunc(float width, float height)
             // Close window : exit
             case sf::Event::Closed:
                 menuwindow.close();
+                menuMusic.stop();
             case sf::Event::KeyReleased:
                 switch(event.key.code)
                 {
@@ -124,9 +140,13 @@ void menufunc(float width, float height)
                         switch(menu.GetSelected())
                         {
                         case 0:
+                            menuMusic.stop();
+                            selectionMusic.play();
                             menuwindow.close();
                             gamefunc();
                         case 1:
+                            menuMusic.stop();
+                            selectionMusic.play();
                             menuwindow.close();
                         }
                 }

@@ -7,7 +7,6 @@
 #include "Menu.h"
 #include "Game.h"
 
-
 using namespace std;
 
 int main()

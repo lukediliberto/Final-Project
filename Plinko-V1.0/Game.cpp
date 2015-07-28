@@ -122,11 +122,20 @@ void gamefunc()
     texture.loadFromFile("plinkoimage.png");
     testChip.setTexture(&texture);
 
-    //boing sound
+    //sounds
     sf::SoundBuffer buffer;
     buffer.loadFromFile("boing.wav");
     sf::Sound sound;
     sound.setBuffer(buffer);
+    sf::SoundBuffer gameplayBuffer, beepBuffer, selectionBuffer;
+    sf::Sound selectionMusic;
+    selectionMusic.setBuffer(selectionBuffer);
+    sf::Sound gamebeep;
+    gamebeep.setBuffer(beepBuffer);
+    sf::Sound gamemusic;
+    gamemusic.setBuffer(gameplayBuffer);
+    gamemusic.play();
+    gamemusic.setLoop(true);
 
 
     int colorCounter=0; //for intializing the vector for colors
@@ -170,7 +179,8 @@ void gamefunc()
             if(event.type == sf::Event::MouseMoved && counter == 0)
                 testChip.setPosition(event.mouseMove.x, event.mouseMove.y);
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y >= 20 && counter == 0)
-                chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
+                {chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
+				gamebeep.play();};
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y < 20)
             {
                 //NOTE its possible to drop the chip straight down on a peg and only bounce
@@ -183,6 +193,7 @@ void gamefunc()
             //if O is pressed
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::O))
             {
+				selectionMusic.play();
                 Opressed=1;
                 Rpressed=0;
                 noKeysPressed=0;
@@ -191,6 +202,7 @@ void gamefunc()
             //if R is pressed
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
             {
+				selectionMusic.play();
                 Opressed=0;
                 Rpressed=1;
                 Rcount=0;
@@ -322,6 +334,7 @@ void gamefunc()
         //I want to see the chip really land in the bin
             if(position.y>=475.000001 && velocity.y<=0.000000000000001)
             {
+                gamemusic.stop();
                 testChip.setVelocity(0,0);
                 isInBin=1;
 
