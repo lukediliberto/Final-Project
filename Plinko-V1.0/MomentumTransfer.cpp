@@ -63,6 +63,17 @@ void MomentumTransfer(PlinkoChip& c1, Peg& p1)
             c1.setVelocity(c1vNew);
 
             c1.setIsColliding(1);
+
+            //handling case where chip bounces up and down on a single peg
+            //impart a small (.01) positive or negative x velocity
+            if(c1.getVelocity().x == 0 && normalVector.x == 0)
+                {
+                int r1 = rand()%2;
+                if(r1%2 == 0)
+                    {c1.setVelocity(.01,c1.getVelocity().y);}
+                else
+                    {c1.setVelocity(-.01,c1.getVelocity().y);}
+                }
         }
 
     //this prevents the stones from "swirling" off each other

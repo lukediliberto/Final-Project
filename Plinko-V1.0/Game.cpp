@@ -95,7 +95,6 @@ void gamefunc(char c)
     testChip.setTexture(&texture);
 
     //sounds
-
     sf::Sound sound, selectionMusic, gamebeep, gamemusic;
     sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
     buffer.loadFromFile("boing.wav");

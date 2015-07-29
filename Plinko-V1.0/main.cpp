@@ -11,6 +11,8 @@ using namespace std;
 
 int main()
 {
+    //srand for random # generation should only be declared once per main execution
+    srand(time(NULL));
     int window_width = 500;
     int window_height = 500;
     menufunc(window_width, window_height);
