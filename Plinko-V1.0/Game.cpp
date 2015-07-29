@@ -43,9 +43,9 @@ void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by refer
     }
 }
 
-void gamefunc()
+void gamefunc(char c)
 {
-    int FRAME_RATE = 60;
+    int FRAME_RATE = 20;
     int window_width = 500;
     int window_height = 500;
     bool windowbound = true;
@@ -53,30 +53,10 @@ void gamefunc()
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Plinko!!!");
     window.setPosition(sf::Vector2i(0,0));
 
-    //initializing
-    bool Opressed=0;
-    bool Rpressed=0;
-
-    //to make sure that button can only pressed once
-    int Ocount=0;
-    int Rcount=0;
-
-    bool isInBin=0;
-
-    bool noKeysPressed=1;
-
-    sf::Text text1,text2,text3, errorText;
     // select the font
     sf::Font font;
-    font.loadFromFile("PLINKO2K.TTF");
-
-    text1.setFont(font);
-    text1.setCharacterSize(24); // in pixels, not points!
-    text1.setColor(sf::Color::Magenta);
-
-    text2=text1;
-    text3=text1;
-    errorText=text1;
+    if(!font.loadFromFile("PLINKO2K.TTF"))
+        cout<<"Error loading font (Bin Strings)"<<endl;
 
     sf::Text binMoney[9];
     binMoney[0].setString("$\n1\n0\n0");
@@ -99,14 +79,6 @@ void gamefunc()
     }
 
 
-    text1.setString("To select Game mode, press:");
-    text1.setPosition(20,100);
-    text2.setString("O for Original");
-    text2.setPosition(125,150);
-    text3.setString("R for Random");
-    text3.setPosition(125,180);
-
-
     //Combine all pegs into single vector for easy processing
     // -- TBD Possible to add into allPegs as created, make easier or harder to follow???
     vector<Peg> allPegs;
@@ -123,28 +95,113 @@ void gamefunc()
     testChip.setTexture(&texture);
 
     //sounds
-    sf::SoundBuffer buffer;
+
+    sf::Sound sound, selectionMusic, gamebeep, gamemusic;
+    sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
     buffer.loadFromFile("boing.wav");
-    sf::Sound sound;
     sound.setBuffer(buffer);
-    sf::SoundBuffer gameplayBuffer, beepBuffer, selectionBuffer;
-    sf::Sound selectionMusic;
     selectionMusic.setBuffer(selectionBuffer);
-    sf::Sound gamebeep;
     gamebeep.setBuffer(beepBuffer);
-    sf::Sound gamemusic;
     gamemusic.setBuffer(gameplayBuffer);
     gamemusic.play();
     gamemusic.setLoop(true);
+    selectionMusic.play();
 
 
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
 
     bool bounceInPlaceError=0;
+    sf::Text errorText;
 
     errorText.setString("Error! Quitting to Main Menu...");
     errorText.setPosition(20,100);
+
+    if(c == 'o') //so it only occurs once
+    {
+        allPegs.clear();
+
+        const int pegsPerLineOdd=9;
+        const int pegsPerLineEven=10;
+
+        //creating oddPegs vector
+        vector<Peg> oddPegs;
+        for (int i=0; i<36; i++)
+            {oddPegs.push_back(Peg());}
+        int oddSIZE=oddPegs.size();
+        int oddLine=0;
+        for (int i=0; i<oddSIZE; i++)
+        {
+            int offset=50;
+            if (i%pegsPerLineOdd==0 && i!=0)
+                {oddLine++;}
+            oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
+        }
+
+        //creating evenPegs vector
+        vector<Peg> evenPegs;
+        for (int i=0; i<40; i++)
+            {evenPegs.push_back(Peg());}
+        int evenSIZE=evenPegs.size();
+        int evenLine=0;
+        for (int i=0; i<evenSIZE; i++)
+        {
+            int offset=25;
+            if (i%pegsPerLineEven==0 && i!=0)
+                {evenLine++;}
+            evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
+        }
+
+        //Create Prize Bins
+        vector<Peg> binPegs;
+        for (int i=0; i<100; i++)
+            {binPegs.push_back(Peg());}
+        int binWalls = 10;
+        for (int i=0; i<10; i++)
+        {
+            for(int j = 0; j<binWalls ; j++)
+            {
+                binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
+            }
+        }
+
+        //putting all pegs into allPegs
+        allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
+        allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
+        allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
+        pegNumber=176;
+    }
+
+            //if R was pressed
+    if(c == 'r')
+    {
+            allPegs.clear();
+
+            vector<Peg> pegVec;
+            for (int i=0; i<60; i++)
+            {
+                pegVec.push_back(Peg());
+                pegVec[i].setRandomPosition();
+            }
+            checkForUniquePosition(pegVec);
+
+            //Create Prize Bins
+            vector<Peg> binPegs;
+            for (int i=0; i<100; i++)
+                {binPegs.push_back(Peg());}
+            int binWalls = 10;
+            for (int i=0; i<10; i++)
+            {
+                for(int j = 0; j<binWalls ; j++)
+                {
+                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
+                }
+            }
+            //putting all pegs into allPegs
+            allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
+            allPegs.insert(allPegs.end(),pegVec.begin(),pegVec.end());
+            pegNumber=160;
+    }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -153,10 +210,7 @@ void gamefunc()
     //count if chip set
     int counter = 0;
     //Error message for low chip placement
-    sf::Font errorFont;
-    if(!errorFont.loadFromFile("PLINKO2K.TTF"))
-        cout<<"Error loading Font (game Funciton)"<<endl;
-    sf::Text chipError("", errorFont, 20);
+    sf::Text chipError("", font, 20);
     chipError.setPosition(window_width/4.5, window_height/4.2);
     chipError.setColor(sf::Color::Magenta);
 	// Start the game loop
@@ -188,122 +242,7 @@ void gamefunc()
                 counter = 1;
                 chipError.setString("");
             }
-////////////////////////////////////////////////////////////////////////////////////////
-
-            //if O is pressed
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::O))
-            {
-				selectionMusic.play();
-                Opressed=1;
-                Rpressed=0;
-                noKeysPressed=0;
-            }
-
-            //if R is pressed
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-            {
-				selectionMusic.play();
-                Opressed=0;
-                Rpressed=1;
-                Rcount=0;
-                noKeysPressed=0;
-            }
-////////////////////////////////////////////////////////////////////////////////////////
-
-            //if O was pressed
-            if (Opressed && Ocount==0) //so it only occurs once
-            {
-                allPegs.clear();
-
-                const int pegsPerLineOdd=9;
-                const int pegsPerLineEven=10;
-
-                //creating oddPegs vector
-                vector<Peg> oddPegs;
-                for (int i=0; i<36; i++)
-                    {oddPegs.push_back(Peg());}
-                int oddSIZE=oddPegs.size();
-                int oddLine=0;
-                for (int i=0; i<oddSIZE; i++)
-                {
-                    int offset=50;
-                    if (i%pegsPerLineOdd==0 && i!=0)
-                        {oddLine++;}
-                    oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
-                }
-
-                //creating evenPegs vector
-                vector<Peg> evenPegs;
-                for (int i=0; i<40; i++)
-                    {evenPegs.push_back(Peg());}
-                int evenSIZE=evenPegs.size();
-                int evenLine=0;
-                for (int i=0; i<evenSIZE; i++)
-                {
-                    int offset=25;
-                    if (i%pegsPerLineEven==0 && i!=0)
-                        {evenLine++;}
-                    evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
-                }
-
-                //Create Prize Bins
-                vector<Peg> binPegs;
-                for (int i=0; i<100; i++)
-                    {binPegs.push_back(Peg());}
-                int binWalls = 10;
-                for (int i=0; i<10; i++)
-                {
-                    for(int j = 0; j<binWalls ; j++)
-                    {
-                        binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
-                    }
-                }
-
-                //putting all pegs into allPegs
-                allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
-                allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
-                allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
-
-                Ocount++;
-                Rcount=0;
-                pegNumber=176;
-            }
-
-            //if R was pressed
-            if (Rpressed && Rcount==0)
-            {
-                allPegs.clear();
-
-                vector<Peg> pegVec;
-                for (int i=0; i<60; i++)
-                {
-                    pegVec.push_back(Peg());
-                    pegVec[i].setRandomPosition();
-                }
-                checkForUniquePosition(pegVec);
-
-                //Create Prize Bins
-                vector<Peg> binPegs;
-                for (int i=0; i<100; i++)
-                    {binPegs.push_back(Peg());}
-                int binWalls = 10;
-                for (int i=0; i<10; i++)
-                {
-                    for(int j = 0; j<binWalls ; j++)
-                    {
-                        binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
-                    }
-                }
-
-                //putting all pegs into allPegs
-                allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
-                allPegs.insert(allPegs.end(),pegVec.begin(),pegVec.end());
-
-                Ocount=0;
-                Rcount++;
-                pegNumber=160;
-            }
-        }
+       }
 
 ////////////////////////////////////////////////////////////////////////////////////////
     //main function
@@ -336,7 +275,6 @@ void gamefunc()
             {
                 gamemusic.stop();
                 testChip.setVelocity(0,0);
-                isInBin=1;
 
                 //determining the amount of money awarded
                 if (position.x>=0 && position.x<=binwidth)
@@ -357,12 +295,8 @@ void gamefunc()
                     money=500;
                 else
                     money=100;
-            }
 
-            if(isInBin)
-            {
-                window.close();
-                winWindowFunc(window_width, window_height, money);
+                winfunc(window_width, window_height, window, c, money, allPegs);
             }
 
             //initializing bounceCount vector
@@ -419,13 +353,7 @@ void gamefunc()
         window.draw(testChip);
         window.draw(chipError);
 
-        if (noKeysPressed)
-        {
-            window.draw(text1);
-            window.draw(text2);
-            window.draw(text3);
-        }
-	for(int i = 0; i<9; i++)
+        for(int i = 0; i<9; i++)
             window.draw(binMoney[i]);
 
         if (bounceInPlaceError)

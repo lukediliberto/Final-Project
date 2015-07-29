@@ -15,7 +15,7 @@ void winWindowFunc(float width, float height, int money)
 {
     // Create the main window
     sf::RenderWindow winWindow(sf::VideoMode(width, height), "Winner!!!");
-    winWindow.setFramerateLimit(60);
+    winWindow.setFramerateLimit(20);
 
     // Load a sprite to display
     sf::Texture texture;

@@ -86,7 +86,7 @@ void PlinkoChip::setMass(float m)
 
 void PlinkoChip::applyGravity()
 {
-    setVelocity(getVelocity().x,getVelocity().y+.1);
+    setVelocity(getVelocity().x,getVelocity().y+.3);
 }
 
 void PlinkoChip::setNextPosition()
