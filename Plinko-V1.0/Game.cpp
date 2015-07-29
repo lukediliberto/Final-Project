@@ -100,6 +100,13 @@ void gamefunc(char c)
     sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
     buffer.loadFromFile("boing.wav");
     sound.setBuffer(buffer);
+    //sf::SoundBuffer gameplayBuffer, beepBuffer, selectionBuffer;
+    if(!gameplayBuffer.loadFromFile("gamemelody.wav"))
+        cout<<"Error loading sound";
+    if(!beepBuffer.loadFromFile("beep.ogg"))
+        cout<<"Error loading sound";
+    if(!selectionBuffer.loadFromFile("selection2.wav"))
+        cout<<"Error loading sound";
     selectionMusic.setBuffer(selectionBuffer);
     gamebeep.setBuffer(beepBuffer);
     gamemusic.setBuffer(gameplayBuffer);
