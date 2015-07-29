@@ -118,7 +118,6 @@ void menufunc(float width, float height)
 
     //Load menu music
     sf::SoundBuffer menuBuffer, selectionBuffer;
-//    if(!menuBuffer.loadFromFile("PlinkoMenu.ogg"))
     if(!menuBuffer.loadFromFile("plinkomenu.wav"))
         cout<<"Error loading sound";
     if(!selectionBuffer.loadFromFile("selection.wav"))

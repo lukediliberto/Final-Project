@@ -52,6 +52,13 @@ void gamefunc(char c)
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Plinko!!!");
     window.setPosition(sf::Vector2i(0,0));
+    //Background for gameboard. Still messing around with this...[Luke]
+    sf::Texture backgroundTexture;
+    backgroundTexture.loadFromFile("Background.png");
+    sf::Sprite backgroundSprite;
+    backgroundSprite.setTexture(backgroundTexture);
+    backgroundSprite.setScale(1.7,1.7);
+    backgroundSprite.setColor(sf::Color(0, 0, 0, 0));
 
     // select the font
     sf::Font font;
@@ -85,7 +92,6 @@ void gamefunc(char c)
 
     int pegNumber=0;
 
-
     //creating a PlinkoChip
     PlinkoChip testChip(0,0,260,0,windowbound,window_width,window_height);
     //create texture for plinkochip
@@ -93,7 +99,6 @@ void gamefunc(char c)
     sf::Texture texture;
     texture.loadFromFile("plinkoimage.png");
     testChip.setTexture(&texture);
-
     //sounds
     sf::Sound sound, selectionMusic, gamebeep, gamemusic;
     sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
@@ -208,10 +213,7 @@ void gamefunc(char c)
             allPegs.insert(allPegs.end(),pegVec.begin(),pegVec.end());
             pegNumber=160;
     }
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
-
 
     //count if chip set
     int counter = 0;
@@ -333,18 +335,6 @@ void gamefunc(char c)
                     else
                         allPegs[i].setFillColor(sf::Color::Cyan);
 
-
-                //case where the chip gets "stuck" bouncing in the same spot
-                    if (bounceCount[i]>=15)
-                        bounceInPlaceError=1;
-
-                    if (bounceCount[i]>=40)
-                    {
-                        window.close();
-                        bounceInPlaceError=0;
-                        menufunc(500,500);
-                    }
-
                     bounceCount[i]++;
                     colorCounter++;
                 }
@@ -362,9 +352,7 @@ void gamefunc(char c)
         for(int i = 0; i<9; i++)
             window.draw(binMoney[i]);
 
-        if (bounceInPlaceError)
-            window.draw(errorText);
-
+        window.draw(backgroundSprite);
         // Update the window
         window.display();
         //set frame rate
