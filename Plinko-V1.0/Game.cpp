@@ -449,7 +449,7 @@ void gamefunc(char c, int maxNumberOfChips)
                 if (chipCount==maxNumberOfChips) //this occurs when you run out of chips
                 {
                     chipCanDrop=0;
-                    winfunc(window_width, window_height, window, c, money, allPegs);
+                    winfunc(window_width, window_height, window, c, totalMoney, allPegs);
                 }
                 counter=0;
                 mouseWasPressed=0;
