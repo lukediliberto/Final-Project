@@ -100,4 +100,3 @@ void MomentumTransfer(PlinkoChip& c1, Peg& p1)
         }
 
 }
-

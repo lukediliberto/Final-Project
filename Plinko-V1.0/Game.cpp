@@ -5,9 +5,10 @@
 #include "Peg.h"
 #include "MomentumTransfer.h"
 #include "Menu.h"
-#include "WinningWindow.h"
+
 
 #include <SFML/Audio.hpp>
+#include <string>
 
 using namespace std;
 
@@ -43,15 +44,20 @@ void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by refer
     }
 }
 
-void gamefunc(char c)
+void gamefunc(char c, int maxNumberOfChips)
 {
-    int FRAME_RATE = 20;
+    int totalMoney=0;
+    int chipCount=0;
+
+    int FRAME_RATE = 60;
     int window_width = 500;
-    int window_height = 500;
+    int window_height = 700;
     bool windowbound = true;
+
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Plinko!!!");
     window.setPosition(sf::Vector2i(0,0));
+
     //Background for gameboard. Still messing around with this...[Luke]
     sf::Texture backgroundTexture;
     backgroundTexture.loadFromFile("Background.png");
@@ -64,6 +70,19 @@ void gamefunc(char c)
     sf::Font font;
     if(!font.loadFromFile("PLINKO2K.TTF"))
         cout<<"Error loading font (Bin Strings)"<<endl;
+
+////////////////////////////////////////////////////////////////////////////////////////
+    sf::Text chipText, moneyText;
+
+    chipText.setFont(font);
+    chipText.setCharacterSize(24);
+    chipText.setColor(sf::Color::Magenta);
+
+    moneyText.setFont(font);
+    moneyText.setCharacterSize(24);
+    moneyText.setColor(sf::Color::Magenta);
+
+////////////////////////////////////////////////////////////////////////////////////////
 
     sf::Text binMoney[9];
     binMoney[0].setString("$\n1\n0\n0");
@@ -84,13 +103,6 @@ void gamefunc(char c)
         if(i != 4)
             binMoney[i].setPosition(30+(45*i)+(12*(i-1)),435);
     }
-
-
-    //Combine all pegs into single vector for easy processing
-    // -- TBD Possible to add into allPegs as created, make easier or harder to follow???
-    vector<Peg> allPegs;
-
-    int pegNumber=0;
 
     //creating a PlinkoChip
     PlinkoChip testChip(0,0,260,0,windowbound,window_width,window_height);
@@ -118,78 +130,122 @@ void gamefunc(char c)
     gamemusic.setLoop(true);
     selectionMusic.play();
 
+    // Load a sprite to display
+    sf::Texture texture2;
+    texture2.loadFromFile("scoreboard.png"); //put possible failure statement here
+
+    sf::Sprite scoreboard(texture2);
+    scoreboard.setPosition(175,525);
+
+    string initialMoney=to_string(totalMoney);
+
+    moneyText.setString("$"+initialMoney);
+    moneyText.setColor(sf::Color::Black);
+    moneyText.setPosition(195,550);
+
+    string initalChips=to_string(maxNumberOfChips);
+
+    chipText.setString(initalChips);
+    chipText.setPosition(283,638);
+    chipText.setColor(sf::Color::Black);
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+    vector<Peg> allPegs;
+    int pegNumber=0;
 
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
 
-    bool bounceInPlaceError=0;
-    sf::Text errorText;
+    bool isInBin=0;
+    bool mouseWasPressed=0;
+    bool chipCanDrop=1;
 
-    errorText.setString("Error! Quitting to Main Menu...");
-    errorText.setPosition(20,100);
+    //count if chip set
+    int counter = 0;
+    //Error message for low chip placement
+    sf::Font errorFont;
+    if(!errorFont.loadFromFile("PLINKO2K.TTF"))
+        cout<<"Error loading Font (game Funciton)"<<endl;
+    sf::Text chipError("", errorFont, 20);
+    chipError.setPosition(window_width/4.5, window_height/4.2);
+    chipError.setColor(sf::Color::Magenta);
 
-    if(c == 'o') //so it only occurs once
+////////////////////////////////////////////////////////////////////////////////////////
+    //if O was pressed
+    if(c == 'O')
     {
         allPegs.clear();
 
-        const int pegsPerLineOdd=9;
-        const int pegsPerLineEven=10;
+            const int pegsPerLineOdd=9;
+            const int pegsPerLineEven=10;
 
-        //creating oddPegs vector
-        vector<Peg> oddPegs;
-        for (int i=0; i<36; i++)
-            {oddPegs.push_back(Peg());}
-        int oddSIZE=oddPegs.size();
-        int oddLine=0;
-        for (int i=0; i<oddSIZE; i++)
-        {
-            int offset=50;
-            if (i%pegsPerLineOdd==0 && i!=0)
-                {oddLine++;}
-            oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
-        }
-
-        //creating evenPegs vector
-        vector<Peg> evenPegs;
-        for (int i=0; i<40; i++)
-            {evenPegs.push_back(Peg());}
-        int evenSIZE=evenPegs.size();
-        int evenLine=0;
-        for (int i=0; i<evenSIZE; i++)
-        {
-            int offset=25;
-            if (i%pegsPerLineEven==0 && i!=0)
-                {evenLine++;}
-            evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
-        }
-
-        //Create Prize Bins
-        vector<Peg> binPegs;
-        for (int i=0; i<100; i++)
-            {binPegs.push_back(Peg());}
-        int binWalls = 10;
-        for (int i=0; i<10; i++)
-        {
-            for(int j = 0; j<binWalls ; j++)
+            //creating oddPegs vector
+            vector<Peg> oddPegs;
+            for (int i=0; i<36; i++)
+                {oddPegs.push_back(Peg());}
+            int oddSIZE=oddPegs.size();
+            int oddLine=0;
+            for (int i=0; i<oddSIZE; i++)
             {
-                binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
+                int offset=50;
+                if (i%pegsPerLineOdd==0 && i!=0)
+                    {oddLine++;}
+                oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
             }
-        }
 
-        //putting all pegs into allPegs
-        allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
-        allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
-        allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
-        pegNumber=176;
+            //creating evenPegs vector
+            vector<Peg> evenPegs;
+            for (int i=0; i<40; i++)
+                {evenPegs.push_back(Peg());}
+            int evenSIZE=evenPegs.size();
+            int evenLine=0;
+            for (int i=0; i<evenSIZE; i++)
+            {
+                int offset=25;
+                if (i%pegsPerLineEven==0 && i!=0)
+                    {evenLine++;}
+                evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
+            }
+
+            //Create Prize Bins
+            vector<Peg> binPegs;
+            for (int i=0; i<100; i++)
+                {binPegs.push_back(Peg());}
+            int binWalls = 10;
+            for (int i=0; i<10; i++)
+            {
+                for(int j = 0; j<binWalls ; j++)
+                {
+                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
+                }
+            }
+
+            //Creating bottom pegs for prize bins
+            vector<Peg> bottomPegs;
+            for (int i=0; i<250; i++)
+            {
+                bottomPegs.push_back(Peg());
+                bottomPegs[i].setPosition(i*2,505);
+            }
+
+
+            //Putting all pegs into allPegs
+            allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
+            allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
+            allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
+            allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
+
+            pegNumber=allPegs.size();
     }
 
-            //if R was pressed
-    if(c == 'r')
-    {
+        //if R was pressed
+        if (c == 'R')
+        {
             allPegs.clear();
 
             vector<Peg> pegVec;
-            for (int i=0; i<60; i++)
+            for (int i=0; i<65; i++)
             {
                 pegVec.push_back(Peg());
                 pegVec[i].setRandomPosition();
@@ -208,19 +264,24 @@ void gamefunc(char c)
                     binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
                 }
             }
-            //putting all pegs into allPegs
+
+            //Creating bottom pegs for prize bins
+            vector<Peg> bottomPegs;
+            for (int i=0; i<250; i++)
+            {
+                bottomPegs.push_back(Peg());
+                bottomPegs[i].setPosition(i*2,505);
+            }
+
+            //Putting all pegs into allPegs
+            allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
             allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
             allPegs.insert(allPegs.end(),pegVec.begin(),pegVec.end());
-            pegNumber=160;
-    }
+
+            pegNumber=allPegs.size();
+        }
 ////////////////////////////////////////////////////////////////////////////////////////
 
-    //count if chip set
-    int counter = 0;
-    //Error message for low chip placement
-    sf::Text chipError("", font, 20);
-    chipError.setPosition(window_width/4.5, window_height/4.2);
-    chipError.setColor(sf::Color::Magenta);
 	// Start the game loop
     while (window.isOpen())
     {
@@ -235,34 +296,68 @@ void gamefunc(char c)
             //P Pressed: Pause
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
                 pausefunc(window_width, window_height, window);
-            //comment this line out to test mouse
-            //counter = 1;
-            //uncomment to test mouse
+
+            //Mouse moved
             if(event.type == sf::Event::MouseMoved && counter == 0)
                 testChip.setPosition(event.mouseMove.x, event.mouseMove.y);
+
+            //Mouse pressed
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y >= 20 && counter == 0)
                 {chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
 				gamebeep.play();};
-            if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y < 20)
+            if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y < 20 && chipCanDrop)
             {
-                //NOTE its possible to drop the chip straight down on a peg and only bounce
-                //up and down
-                counter = 1;
+                mouseWasPressed=1;
+                chipCount++;
+                chipText.setString(to_string(maxNumberOfChips-chipCount));
                 chipError.setString("");
             }
-       }
+        }
+
+////////////////////////////////////////////////////////////////////////////////////////
+        // Clear screen
+        window.clear(sf::Color::White);
+
+        window.draw(backgroundSprite);
+
+        // Draw the sprite
+        for (int i=0; i<allPegs.size(); i++)
+            {window.draw(allPegs[i]);}
+        window.draw(testChip);
+        window.draw(chipError);
+
+        for(int i = 0; i<9; i++)
+            window.draw(binMoney[i]);
+
+        window.draw(scoreboard);
+        window.draw(chipText);
+        window.draw(moneyText);
+
+        // Update the window
+        window.display();
+        //set frame rate
+        window.setFramerateLimit(FRAME_RATE);
+////////////////////////////////////////////////////////////////////////////////////////
+
+        if(mouseWasPressed)
+        {
+            counter=1;
+            isInBin=0;
+        }
 
 ////////////////////////////////////////////////////////////////////////////////////////
     //main function
         if(counter != 0)
         {
-            //check for collisions.
-            for(int i = 0; i<allPegs.size();i++)
+
+            //check for collisions with all pegs except bottom pegs
+            for(int i = 250; i<allPegs.size();i++)
             {
                 if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
                                 (testChip.getRadius()+allPegs[i].getRadius()))
                         {MomentumTransfer(testChip,allPegs[i]);}
             }
+
             //update position of Chip
             testChip.setNextPosition();
             testChip.setPosition(testChip.getNextPosition().x,testChip.getNextPosition().y);
@@ -272,17 +367,26 @@ void gamefunc(char c)
             sf::Vector2f position = testChip.getPosition();
             sf::Vector2f velocity = testChip.getVelocity();
 
+            //if the chip lands on a bottom peg, stop it and increment delay counter
+            for(int i=0; i<250; i++)
+            {
+                if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
+                                (testChip.getRadius()+allPegs[i].getRadius()))
+                {
+                    testChip.setVelocity(0,0);
+                    testChip.setPosition(position.x,505+0.5-allPegs[i].getRadius()-testChip.getRadius());
+                }
+            }
+
             double binwidth=55.5;
             int money=0;
 
-
-        //this occurs when PlinkoChip lands in a bin
-        //trying to make the transition a little slower
-        //I want to see the chip really land in the bin
-            if(position.y>=475.000001 && velocity.y<=0.000000000000001)
+        //don't know why it should be this #, but it works
+            if(position.y>=485)
             {
                 gamemusic.stop();
-                testChip.setVelocity(0,0);
+
+                isInBin=1;
 
                 //determining the amount of money awarded
                 if (position.x>=0 && position.x<=binwidth)
@@ -299,12 +403,13 @@ void gamefunc(char c)
                     money=0;
                 else if (position.x>=6*binwidth && position.x<=7*binwidth)
                     money=1000;
-                else if (position.x>=7*binwidth && position.x<=7*binwidth)
+                else if (position.x>=7*binwidth && position.x<=8*binwidth)
                     money=500;
                 else
                     money=100;
 
-                winfunc(window_width, window_height, window, c, money, allPegs);
+                totalMoney=totalMoney+money;
+                moneyText.setString("$"+to_string(totalMoney));
             }
 
             //initializing bounceCount vector
@@ -312,9 +417,8 @@ void gamefunc(char c)
                 bounceCount.resize(pegNumber,0);
                 //kept the index of i the same by making the vector to include all pegs
 
-
             //changing pegs that have a collision with the chip
-            for (int i=100; i<pegNumber; i++)
+            for (int i=350; i<pegNumber; i++)
             {
                 if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
                         (testChip.getRadius()+allPegs[i].getRadius()))
@@ -339,25 +443,18 @@ void gamefunc(char c)
                     colorCounter++;
                 }
             }
+
+            if(isInBin)
+            {
+                if (chipCount==maxNumberOfChips) //this occurs when you run out of chips
+                {
+                    chipCanDrop=0;
+                    winfunc(window_width, window_height, window, c, money, allPegs);
+                }
+                counter=0;
+                mouseWasPressed=0;
+            }
         }
-
-        // Clear screen
-        window.clear(sf::Color::White);
-        // Draw the sprite
-        for (int i=0; i<allPegs.size(); i++)
-            {window.draw(allPegs[i]);}
-        window.draw(testChip);
-        window.draw(chipError);
-
-        for(int i = 0; i<9; i++)
-            window.draw(binMoney[i]);
-
-        window.draw(backgroundSprite);
-        // Update the window
-        window.display();
-        //set frame rate
-        window.setFramerateLimit(FRAME_RATE);
     }
-
 //    return EXIT_SUCCESS;
 }

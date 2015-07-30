@@ -35,7 +35,6 @@ void PlinkoChip::setVelocity(float xSpeed,float ySpeed)
 {
     velocity.x=xSpeed;
     velocity.y=ySpeed;
-//    move(xspeed,yspeed);
 }
 
 void PlinkoChip::setVelocity(sf::Vector2f vec)
@@ -86,7 +85,7 @@ void PlinkoChip::setMass(float m)
 
 void PlinkoChip::applyGravity()
 {
-    setVelocity(getVelocity().x,getVelocity().y+.3);
+    setVelocity(getVelocity().x,getVelocity().y+.1);
 }
 
 void PlinkoChip::setNextPosition()

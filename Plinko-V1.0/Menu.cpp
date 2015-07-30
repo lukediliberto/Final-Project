@@ -4,6 +4,12 @@
 #include "Game.h"
 #include <iostream>
 #include <string>
+#include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
+#include "Menu.h"
+#include "Game.h"
+#include <iostream>
+#include <string>
 #include <vector>
 #include <fstream>
 
@@ -242,11 +248,11 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
                         {
                         case 0:
                             submenuwindow.close();
-                            gamefunc('o');
+                            gamefunc('O',2);
                             break;
                         case 1:
                             submenuwindow.close();
-                            gamefunc('r');
+                            gamefunc('R',2);
                             break;
                         case 2:
                             mode = 0;
@@ -417,7 +423,7 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
                         {
                         case 0:
                             winwindow.close();
-                            gamefunc(c);
+                            gamefunc(c,2);
                             break;
                         case 1:
                             winwindow.close();
