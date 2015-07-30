@@ -9,7 +9,7 @@
 using namespace std;
 
 void checkForUniquePosition (vector<Peg> &pegVec);
-void gamefunc(char keyPressed, int maxNumberOfChips);
+void gamefunc(char c);
 
 
 #endif // GAME_H

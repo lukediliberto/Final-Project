@@ -44,8 +44,9 @@ void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by refer
     }
 }
 
-void gamefunc(char c, int maxNumberOfChips)
+void gamefunc(char c)
 {
+    int maxNumberOfChips;
     int totalMoney=0;
     int chipCount=0;
 

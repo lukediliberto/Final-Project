@@ -248,11 +248,11 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
                         {
                         case 0:
                             submenuwindow.close();
-                            gamefunc('O',2);
+                            gamefunc('O');
                             break;
                         case 1:
                             submenuwindow.close();
-                            gamefunc('R',2);
+                            gamefunc('R');
                             break;
                         case 2:
                             mode = 0;
@@ -423,7 +423,7 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
                         {
                         case 0:
                             winwindow.close();
-                            gamefunc(c,2);
+                            gamefunc(c);
                             break;
                         case 1:
                             winwindow.close();
