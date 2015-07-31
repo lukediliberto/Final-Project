@@ -437,6 +437,7 @@ void gamefunc(char c)
                     chipCanDrop=0;
                     winfunc(window_width, window_height, window, c, totalMoney, allPegs);
                 }
+                chipError.setString("Move Mouse to Top of Board\n \n    to Drop Next Chip");
                 counter=0;
                 mouseWasPressed=0;
                 chipError.setString("Move Mouse to Top of Board\n \n       to Drop Next Chip");

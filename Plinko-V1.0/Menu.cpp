@@ -320,7 +320,7 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow)
                             break;
                         case 1:
                             pausewindow.close();
-                            menufunc(width, height);
+                            menufunc(500, 500);
                             break;
                         case 2:
                             pausewindow.close();
@@ -427,7 +427,7 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
                             break;
                         case 1:
                             winwindow.close();
-                            menufunc(width, height);
+                            menufunc(500, 500);
                             break;
                         case 2:
                             winwindow.close();
