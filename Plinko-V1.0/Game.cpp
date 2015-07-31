@@ -46,7 +46,7 @@ void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by refer
 
 void gamefunc(char c)
 {
-    int maxNumberOfChips;
+    int maxNumberOfChips=3;
     int totalMoney=0;
     int chipCount=0;
 
@@ -173,78 +173,83 @@ void gamefunc(char c)
     chipError.setColor(sf::Color::Magenta);
 
 ////////////////////////////////////////////////////////////////////////////////////////
-    //if O was pressed
-    if(c == 'O')
+    //consolidation (reducing redundancies)
+    //if O or R was pressed
+    if(c == 'O' || c == 'R')
     {
         allPegs.clear();
 
-            const int pegsPerLineOdd=9;
-            const int pegsPerLineEven=10;
-
-            //creating oddPegs vector
-            vector<Peg> oddPegs;
-            for (int i=0; i<36; i++)
-                {oddPegs.push_back(Peg());}
-            int oddSIZE=oddPegs.size();
-            int oddLine=0;
-            for (int i=0; i<oddSIZE; i++)
+        //Create Prize Bins
+        vector<Peg> binPegs;
+        for (int i=0; i<100; i++)
+            {binPegs.push_back(Peg());}
+        int binWalls = 10;
+        for (int i=0; i<10; i++)
+        {
+            for(int j = 0; j<binWalls ; j++)
             {
-                int offset=50;
-                if (i%pegsPerLineOdd==0 && i!=0)
-                    {oddLine++;}
-                oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
+                binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
             }
+        }
 
-            //creating evenPegs vector
-            vector<Peg> evenPegs;
-            for (int i=0; i<40; i++)
-                {evenPegs.push_back(Peg());}
-            int evenSIZE=evenPegs.size();
-            int evenLine=0;
-            for (int i=0; i<evenSIZE; i++)
-            {
-                int offset=25;
-                if (i%pegsPerLineEven==0 && i!=0)
-                    {evenLine++;}
-                evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
-            }
+        //Creating bottom pegs for prize bins
+        vector<Peg> bottomPegs;
+        for (int i=0; i<250; i++)
+        {
+            bottomPegs.push_back(Peg());
+            bottomPegs[i].setPosition(i*2,505);
+        }
 
-            //Create Prize Bins
-            vector<Peg> binPegs;
-            for (int i=0; i<100; i++)
-                {binPegs.push_back(Peg());}
-            int binWalls = 10;
-            for (int i=0; i<10; i++)
-            {
-                for(int j = 0; j<binWalls ; j++)
-                {
-                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
-                }
-            }
+        //Putting all pegs into allPegs
+        allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
+        allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
+    }
 
-            //Creating bottom pegs for prize bins
-            vector<Peg> bottomPegs;
-            for (int i=0; i<250; i++)
-            {
-                bottomPegs.push_back(Peg());
-                bottomPegs[i].setPosition(i*2,505);
-            }
+    //if O was pressed
+    if(c == 'O')
+    {
+        const int pegsPerLineOdd=9;
+        const int pegsPerLineEven=10;
 
+        //creating oddPegs vector
+        vector<Peg> oddPegs;
+        for (int i=0; i<36; i++)
+            {oddPegs.push_back(Peg());}
+        int oddSIZE=oddPegs.size();
+        int oddLine=0;
+        for (int i=0; i<oddSIZE; i++)
+        {
+            int offset=50;
+            if (i%pegsPerLineOdd==0 && i!=0)
+                {oddLine++;}
+            oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
+        }
 
-            //Putting all pegs into allPegs
-            allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
-            allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
-            allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
-            allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
+        //creating evenPegs vector
+        vector<Peg> evenPegs;
+        for (int i=0; i<40; i++)
+            {evenPegs.push_back(Peg());}
+        int evenSIZE=evenPegs.size();
+        int evenLine=0;
+        for (int i=0; i<evenSIZE; i++)
+        {
+            int offset=25;
+            if (i%pegsPerLineEven==0 && i!=0)
+                {evenLine++;}
+            evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
+        }
 
-            pegNumber=allPegs.size();
+        //Putting the rest of the pegs into allPegs
+        allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
+        allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
+
+        pegNumber=allPegs.size();
     }
 
         //if R was pressed
         if (c == 'R')
         {
-            allPegs.clear();
-
+            //creating vector of random pegs
             vector<Peg> pegVec;
             for (int i=0; i<65; i++)
             {
@@ -253,30 +258,7 @@ void gamefunc(char c)
             }
             checkForUniquePosition(pegVec);
 
-            //Create Prize Bins
-            vector<Peg> binPegs;
-            for (int i=0; i<100; i++)
-                {binPegs.push_back(Peg());}
-            int binWalls = 10;
-            for (int i=0; i<10; i++)
-            {
-                for(int j = 0; j<binWalls ; j++)
-                {
-                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
-                }
-            }
-
-            //Creating bottom pegs for prize bins
-            vector<Peg> bottomPegs;
-            for (int i=0; i<250; i++)
-            {
-                bottomPegs.push_back(Peg());
-                bottomPegs[i].setPosition(i*2,505);
-            }
-
-            //Putting all pegs into allPegs
-            allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
-            allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
+            //Putting the rest of the pegs into allPegs
             allPegs.insert(allPegs.end(),pegVec.begin(),pegVec.end());
 
             pegNumber=allPegs.size();
@@ -304,8 +286,11 @@ void gamefunc(char c)
 
             //Mouse pressed
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y >= 20 && counter == 0)
-                {chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
-				gamebeep.play();};
+            {
+                chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
+				gamebeep.play();
+				chipError.setPosition(window_width/4.5, window_height/4.2);
+            }
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y < 20 && chipCanDrop)
             {
                 mouseWasPressed=1;
@@ -445,7 +430,7 @@ void gamefunc(char c)
                 }
             }
 
-            if(isInBin)
+            if (isInBin)
             {
                 if (chipCount==maxNumberOfChips) //this occurs when you run out of chips
                 {
@@ -454,6 +439,8 @@ void gamefunc(char c)
                 }
                 counter=0;
                 mouseWasPressed=0;
+                chipError.setString("Move Mouse to Top of Board\n \n       to Drop Next Chip");
+                chipError.setPosition(window_width/7.5, window_height/4.2);
             }
         }
     }
