@@ -5,6 +5,8 @@
 #include "Peg.h"
 #include "MomentumTransfer.h"
 #include "Menu.h"
+
+
 #include <SFML/Audio.hpp>
 #include <string>
 
@@ -19,7 +21,7 @@ vector<Peg> setupBottomPegs();
 
 void gamefunc(char c)
 {
-    int maxNumberOfChips = 1;
+    int maxNumberOfChips=3;
     int totalMoney=0;
     int chipCount=0;
 
@@ -125,6 +127,7 @@ void gamefunc(char c)
     vector<Peg> binPegs;
     vector<Peg> bottomPegs;
     vector<Peg> allPegs;
+    int pegNumber=0;
 
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
@@ -258,6 +261,8 @@ void gamefunc(char c)
         //don't know why it should be this #, but it works
             if(position.y>=485)
             {
+                gamemusic.stop();
+
                 isInBin=1;
 
                 //determining the amount of money awarded
@@ -327,6 +332,8 @@ void gamefunc(char c)
                 chipError.setString("Move Mouse to Top \n \n    of Board\n \nto Drop Next Chip");
                 counter=0;
                 mouseWasPressed=0;
+                chipError.setString("Move Mouse to Top of Board\n \n       to Drop Next Chip");
+                chipError.setPosition(window_width/7.5, window_height/4.2);
             }
         }
     }
