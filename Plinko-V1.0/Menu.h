@@ -40,4 +40,5 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
 void pausefunc(float width, float height, sf::RenderWindow &window);
 void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs);
 
+
 #endif // MENU_H

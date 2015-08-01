@@ -4,17 +4,8 @@
 #include "Game.h"
 #include <iostream>
 #include <string>
-#include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
-#include "Menu.h"
-#include "Game.h"
-#include <iostream>
-#include <string>
 #include <vector>
 #include <fstream>
-
-//#include <thread>         // std::this_thread::sleep_for
-//#include <chrono>         // std::chrono::seconds
 #include <unistd.h>
 
 using namespace std;
@@ -98,7 +89,6 @@ void Menu::SetTextColor(sf::Color color)
     textcolor = color;
 }
 
-
 //MAIN MENU
 void menufunc(float width, float height)
 {
@@ -124,10 +114,8 @@ void menufunc(float width, float height)
 
     //Load menu music
     sf::SoundBuffer menuBuffer, selectionBuffer;
-    if(!menuBuffer.loadFromFile("plinkomenu.wav"))
-        cout<<"Error loading sound";
-    if(!selectionBuffer.loadFromFile("selection.wav"))
-        cout<<"Error loading sound";
+    menuBuffer.loadFromFile("plinkomenu.wav");
+    selectionBuffer.loadFromFile("selection.wav");
     sf::Sound menuMusic, selectionMusic;
     menuMusic.setBuffer(menuBuffer);
     menuMusic.play();
@@ -340,144 +328,316 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow)
 
 }
 
+//structure and operator for use in winfunc leaderboard
+struct userscore{string name; int score;};
+bool byScoreDesc(const userscore &a, const userscore &b){return a.score>=b.score;}
+vector<userscore> getLeaderBoard(char c);
+int getUserRank(vector<userscore> leaderboard, int score);
+void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard);
+
 void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs)
 {
+
+    sf::Sound gamebeep;
+    sf::SoundBuffer beepBuffer;
+    beepBuffer.loadFromFile("beep.ogg");
+    gamebeep.setBuffer(beepBuffer);
+
+    sf::Font font;
+    if(!font.loadFromFile("PLINKO2K.TTF"));
+        cout<<"Error loading font (WinFunc)"<<endl;
+    sf::Texture scoreboardTexture;
+    scoreboardTexture.loadFromFile("scoreboard.png"); //put possible failure statement here
+    sf::Sprite scoreboard(scoreboardTexture);
+    scoreboard.setPosition(175,525);
+    sf::Text chipText, moneyText;
+
+    chipText.setFont(font);
+    chipText.setCharacterSize(24);
+    chipText.setColor(sf::Color::Black);
+    chipText.setString(to_string(0));
+    chipText.setPosition(283,638);
+
+    moneyText.setFont(font);
+    moneyText.setCharacterSize(24);
+    moneyText.setColor(sf::Color::Black);
+    moneyText.setPosition(195,550);
+
     vector<string> winitems;
     winitems.push_back("Play Again");
     winitems.push_back("Main Menu");
     winitems.push_back("Quit");
+    winitems.push_back("Clear High Scores");
 
     Menu winmenu(width, height, winitems.size(), sf::Color::Green);
 
     for(int i = 0; i<winitems.size(); i++)
         {winmenu.SetMenuItems(i, winitems[i]);};
 
-    sf::Text text1;
-    // select the font
-    sf::Font font;
-    if(!font.loadFromFile("PLINKO2K.TTF"));
-        cout<<"Error loading font (WinFunc)"<<endl;
+    sf::Text finalDialogue;
 
+    vector <userscore> leaderboard = getLeaderBoard(c);
+    bool awaitNameEntry = false;
+    int userRank = getUserRank(leaderboard,cash);
+    userscore current;
+    current.name = "";
+    current.score = cash;
+    leaderboard.push_back(current);
+    std::sort(leaderboard.begin(), leaderboard.end(),byScoreDesc);
     string money=to_string(cash);
-    if(cash != 0)
-        money="Congratulations!!!\n\n   You win: $"+ money;
-    else
-        money="You win $0\nBetter Luck Next Time";//POSTION THIS TEXT IN CENTER
-    text1.setFont(font);
-    text1.setCharacterSize(24);
-    text1.setColor(sf::Color::Green);
-    text1.setString(money);
-    text1.setPosition(width/4, height/8);
+    moneyText.setString("$"+money);
 
-    ifstream infile;
-    infile.open("highscoresOrig.txt");
-    string line;
+    if(cash >= leaderboard[9].score)
+        {money = "Congratulations!!!\n You Are #"+ to_string(userRank+1) + "\n Enter Your Name";
+        awaitNameEntry = true;}
+    if((cash != 0)&&(cash<leaderboard[10].score))
+        money="Congratulations!!!\n\n   You win: $"+ money;
+    if(cash = 0)
+        money="You win $0\nBetter Luck Next Time";//POSTION THIS TEXT IN CENTER
+    finalDialogue.setFont(font);
+    finalDialogue.setCharacterSize(24);
+    finalDialogue.setColor(sf::Color::Green);
+    finalDialogue.setString(money);
+    finalDialogue.setPosition(width/4, height/8);
+
+    //string line;
     sf::Text high("HIGHSCORES", font, 30);
     high.setPosition(width/3.15, height/3);
     high.setColor(sf::Color::Black);
 
-    //add check to see if score should be adde to high score list.
-    //if so edit file (allow user to enter text in window)
-    //add highscores for random mode.
     sf::Text scores[10];
-    for(int i = 0; i<10; i++)
-    {
-        getline(infile,line);
-        line = to_string(i+1) + ". "+ line;
-        scores[i].setString(line);
-        scores[i].setFont(font);
-        scores[i].setCharacterSize(20);
-        scores[i].setColor(sf::Color::Black);
-        if(i<5)
-            scores[i].setPosition(width/10, height/4 +100 +i*20);
-        else
-            scores[i].setPosition(width*3/5, height/4 + i*20);
-    }
+        for(int i = 0; i<10; i++)
+        {
+            string line;
+            line = to_string(i+1) + ". "+ leaderboard[i].name + " $" + to_string(leaderboard[i].score);
+            scores[i].setString(line);
+            scores[i].setFont(font);
+            scores[i].setCharacterSize(20);
+            scores[i].setColor(sf::Color::Black);
+            if(i == userRank)
+            scores[i].setColor(sf::Color::Red);
+            if(i<5)
+                scores[i].setPosition(width/10, height/4 +100 +i*20);
+            else
+                scores[i].setPosition(width*3/5, height/4 + i*20);
+        }
 
     int counter = 5;
 	// Start the game loop
+//for name entry
+std::string userstr;
+//sf::Text nametext;
     while (winwindow.isOpen())
     {
         // Process events
         sf::Event event;
-        while (winwindow.pollEvent(event))
+        if(awaitNameEntry)
         {
-            switch(event.type)
+            while (winwindow.pollEvent(event))
             {
-            // Close window : exit
-            case sf::Event::Closed:
-                winwindow.close();
-            case sf::Event::KeyReleased:
-                switch(event.key.code)
+                switch(event.type)
                 {
-                    case sf::Keyboard::Up:
-                        winmenu.MoveUp();
-                        break;
-
-                    case sf::Keyboard::Down:
-                        winmenu.MoveDown();
-                        break;
-
-                    case sf::Keyboard::Return:
-                        switch(winmenu.GetSelected())
+                    case sf::Event::Closed:
+                        winwindow.close();
+                    case sf::Event::TextEntered:
+                        if (isalnum(event.text.unicode))
                         {
-                        case 0:
-                            winwindow.close();
-                            gamefunc(c);
-                            break;
-                        case 1:
-                            winwindow.close();
-                            menufunc(500, 500);
-                            break;
-                        case 2:
-                            winwindow.close();
-                            break;
+                            userstr += static_cast<char>(event.text.unicode);
+                            leaderboard[userRank].name = userstr;
+                        }
+                    case sf::Event::KeyReleased:
+                        switch(event.key.code)
+                        {
+                            case sf::Keyboard::Return:
+                                awaitNameEntry = false;
+                                writeLeaderBoardFile(c, leaderboard);
+                                break;
+                            case sf::Keyboard::BackSpace:
+                                    try
+                                    {userstr.erase(userstr.size() - 1);
+                                    leaderboard[userRank].name = userstr;}
+                                    catch(std::out_of_range)
+                                    {break;}
+                                break;
                         }
                 }
-            break;
             }
         }
+        if(!awaitNameEntry)
+        {
+            while (winwindow.pollEvent(event))
+            {
+                switch(event.type)
+                {
+                case sf::Event::Closed:
+                    winwindow.close();
+                case sf::Event::KeyReleased:
+                    switch(event.key.code)
+                    {
+                        case sf::Keyboard::Up:
+                            winmenu.MoveUp();
+                            break;
+                        case sf::Keyboard::Down:
+                            winmenu.MoveDown();
+                            break;
+                        case sf::Keyboard::Return:
+                            switch(winmenu.GetSelected())
+                             {
+                            case 0:
+                                winwindow.close();
+                                gamefunc(c);
+                                break;
+                            case 1:
+                                winwindow.close();
+                                menufunc(500, 500);
+                                break;
+                            case 2:
+                                winwindow.close();
+                                break;
+                            case 3:
+                                for(int i = 0; i<10; i++)
+                                    {leaderboard[i].name = "-";
+                                    leaderboard[i].score = 0;}
+                                for(int i = 0; i<10; i++)
+                                    {string line;
+                                    line = to_string(i+1) + ". "+ leaderboard[i].name +
+                                    " $" + to_string(leaderboard[i].score);
+                                    scores[i].setString(line);}
+                                writeLeaderBoardFile(c, leaderboard);
+                                break;
+                            }
+                    }
+                break;
+                }
+            }
+        }
+//NOTE: Leaderboard requires an alternastive to usleep strategy for winning color peg animation.
+//Clearing window allows for the Leaderboard to be update in screen but prevents the color changing pegs.
+////////////////////////////////////////////////////////////////////////////////////////////
+//BLINK RATE METHOD BEGIN
+        int blinkrate = 30;
         //Change peg colors, slows down menu functionality
         for(int i = 0; i<allPegs.size(); i++)
+        {
+            //sleep and change pegs, un-comment usleep below to test
+            if(counter % blinkrate == 0 && i % 2 == 0)
+            {
+                allPegs[i].setFillColor(sf::Color::Cyan);
+                finalDialogue.setColor(sf::Color::Green);
+            }
+            if(counter % blinkrate == 0 && i % 2 == 1)
+            {
+                allPegs[i].setFillColor(sf::Color::Blue);
+                finalDialogue.setColor(sf::Color::Green);
+            }
+            if(counter % blinkrate == blinkrate/2 && i % 2 == 0)
+            {
+                 allPegs[i].setFillColor(sf::Color::Blue);
+                 finalDialogue.setColor(sf::Color::Yellow);
+            }
+            if(counter % blinkrate == blinkrate/2 && i % 2 == 1)
+            {
+                allPegs[i].setFillColor(sf::Color::Cyan);
+                finalDialogue.setColor(sf::Color::Yellow);
+            }
+       }
+        winwindow.clear(sf::Color::White);
+        for(int i=0; i<allPegs.size();i++)
+            {winwindow.draw(allPegs[i]);}
+//BLINK RATE METHOD END
+////////////////////////////////////////////////////////////////////////////////////////////
+//SLEEP METHOD BEGIN
+ /*for(int i = 0; i<allPegs.size(); i++)
         {
             //sleep and change pegs, un-comment usleep below to test
             if(counter % 2 == 0 && i % 2 == 0)
             {
                 allPegs[i].setFillColor(sf::Color::Cyan);
-                text1.setColor(sf::Color::Green);
+                finalDialogue.setColor(sf::Color::Green);
             }
             if(counter % 2 == 0 && i % 2 == 1)
             {
                 allPegs[i].setFillColor(sf::Color::Blue);
-                text1.setColor(sf::Color::Green);
+                finalDialogue.setColor(sf::Color::Green);
             }
             if(counter % 2 == 1 && i % 2 == 0)
             {
                  allPegs[i].setFillColor(sf::Color::Blue);
-                 text1.setColor(sf::Color::Yellow);
+                 finalDialogue.setColor(sf::Color::Yellow);
             }
             if(counter % 2 == 1 && i % 2 == 1)
             {
                 allPegs[i].setFillColor(sf::Color::Cyan);
-                text1.setColor(sf::Color::Yellow);
+                finalDialogue.setColor(sf::Color::Yellow);
             }
             winwindow.draw(allPegs[i]);
        }
-        usleep(200000);
+        usleep(200000);*/
+winwindow.draw(scoreboard);
+winwindow.draw(moneyText);
+winwindow.draw(chipText);
+//SLEEP METHOD END
+////////////////////////////////////////////////////////////////////////////////////////////
         counter++;
+////////////////////////////////////////////////////////////////////////////////////////////
 
-         winwindow.draw(text1);
+        string updateline;
+        updateline = to_string(userRank+1) + ". "+ leaderboard[userRank].name + " $"+ to_string(leaderboard[userRank].score);
+        scores[userRank].setString(updateline);
+        winwindow.draw(finalDialogue);
         winwindow.draw(high);
         for(int i = 0; i<10; i++)
-        {winwindow.draw(scores[i]);}
-
-        //for (int i=0; i<allPegs.size(); i++)
-           // {winwindow.draw(allPegs[i]);}
-        winmenu.draw(winwindow);
+            {winwindow.draw(scores[i]);}
+        if(!awaitNameEntry)
+            {winmenu.draw(winwindow);}
         winwindow.display();
+
     }
 
 }
 
+//Load the leaderboard and sort and return the scores
+vector<userscore> getLeaderBoard(char c)
+    {
+        ifstream infile;
+        if(c == 'O')
+            {infile.open("highscoresOrig.txt");}
+        if (c == 'R')
+            {infile.open("highscoresRand.txt");}
+        vector<userscore> leaderboard;
+        int i = 0;
+        while (infile.good())
+            {
+                userscore temp;
+                infile >> temp.name;
+                infile >> temp.score;
+                infile.ignore(1);
+                leaderboard.push_back(temp);
+                i++;
+            }
+        infile.close();
+        std::sort(leaderboard.begin(), leaderboard.end(),byScoreDesc);
+        for(int i = 0; i<10; i++)
 
+        return leaderboard;
+    }
+void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard)
+    {
+        ofstream outFile;
 
+        if(c == 'O')
+            {outFile.open("highscoresOrig.txt");}
+        if (c == 'R')
+            {outFile.open("highscoresRand.txt");}
+        for(int i = 0; i<10; i++)
+            {outFile << leaderboard[i].name << " " << leaderboard[i].score << "\n";}
+        outFile.close();
+    }
+int getUserRank(vector<userscore> leaderboard, int score)
+    {
+    for(int i = 0; i<9; i++)
+        {
+            if (score >= leaderboard[i].score)
+            return i;
+        }
+    }

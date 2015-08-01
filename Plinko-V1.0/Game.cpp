@@ -5,48 +5,21 @@
 #include "Peg.h"
 #include "MomentumTransfer.h"
 #include "Menu.h"
-
-
 #include <SFML/Audio.hpp>
 #include <string>
 
 using namespace std;
 
 //this function is used to ensure that each stone has a unique position
-void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by reference
-{
-    int pegSize = pegVec.size();
-    //int chipDiameter=30; //need to make this PlinkoChip().getRadius()*2
-
-
-    for (int i=0; i<pegSize; i++)
-    {
-        for (int j=0; j<pegSize; j++)
-        {
-            sf::Vector2f position = pegVec[i].getPosition();
-            sf::Vector2f otherPosition = pegVec[j].getPosition();
-
-            float xdistanceSquared=(position.x-otherPosition.x)*(position.x-otherPosition.x);
-            float ydistanceSquared=(position.y-otherPosition.y)*(position.y-otherPosition.y);
-
-            float distance=sqrt(xdistanceSquared+ydistanceSquared);
-
-            double collisionDistance=45;
-            //2*pegVec[i].getRadius()+chipDiameter;
-
-            //if a stone is to be created too close to a different stone, then reset this process
-            if(distance<=collisionDistance && i!=j)
-            {
-                pegVec[i].setRandomPosition();
-                j=-1; // because j++ before it repeats through the loop
-            }
-        }
-    }
-}
+void checkForUniquePosition (vector<Peg> &pegVec);
+vector<Peg> setupOriginalBoard();
+vector<Peg> setupRandomBoard();
+vector<Peg> setupBinPegs();
+vector<Peg> setupBottomPegs();
 
 void gamefunc(char c)
 {
-    int maxNumberOfChips;
+    int maxNumberOfChips = 1;
     int totalMoney=0;
     int chipCount=0;
 
@@ -117,13 +90,9 @@ void gamefunc(char c)
     sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
     buffer.loadFromFile("boing.wav");
     sound.setBuffer(buffer);
-    //sf::SoundBuffer gameplayBuffer, beepBuffer, selectionBuffer;
-    if(!gameplayBuffer.loadFromFile("gamemelody.wav"))
-        cout<<"Error loading sound";
-    if(!beepBuffer.loadFromFile("beep.ogg"))
-        cout<<"Error loading sound";
-    if(!selectionBuffer.loadFromFile("selection2.wav"))
-        cout<<"Error loading sound";
+    gameplayBuffer.loadFromFile("gamemelody.wav");
+    beepBuffer.loadFromFile("beep.ogg");
+    selectionBuffer.loadFromFile("selection2.wav");
     selectionMusic.setBuffer(selectionBuffer);
     gamebeep.setBuffer(beepBuffer);
     gamemusic.setBuffer(gameplayBuffer);
@@ -152,8 +121,10 @@ void gamefunc(char c)
 
 
 ////////////////////////////////////////////////////////////////////////////////////////
+    vector<Peg> boardPegs;
+    vector<Peg> binPegs;
+    vector<Peg> bottomPegs;
     vector<Peg> allPegs;
-    int pegNumber=0;
 
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
@@ -173,114 +144,16 @@ void gamefunc(char c)
     chipError.setColor(sf::Color::Magenta);
 
 ////////////////////////////////////////////////////////////////////////////////////////
-    //if O was pressed
+    //Set up the Board and Bins
     if(c == 'O')
-    {
-        allPegs.clear();
-
-            const int pegsPerLineOdd=9;
-            const int pegsPerLineEven=10;
-
-            //creating oddPegs vector
-            vector<Peg> oddPegs;
-            for (int i=0; i<36; i++)
-                {oddPegs.push_back(Peg());}
-            int oddSIZE=oddPegs.size();
-            int oddLine=0;
-            for (int i=0; i<oddSIZE; i++)
-            {
-                int offset=50;
-                if (i%pegsPerLineOdd==0 && i!=0)
-                    {oddLine++;}
-                oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
-            }
-
-            //creating evenPegs vector
-            vector<Peg> evenPegs;
-            for (int i=0; i<40; i++)
-                {evenPegs.push_back(Peg());}
-            int evenSIZE=evenPegs.size();
-            int evenLine=0;
-            for (int i=0; i<evenSIZE; i++)
-            {
-                int offset=25;
-                if (i%pegsPerLineEven==0 && i!=0)
-                    {evenLine++;}
-                evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
-            }
-
-            //Create Prize Bins
-            vector<Peg> binPegs;
-            for (int i=0; i<100; i++)
-                {binPegs.push_back(Peg());}
-            int binWalls = 10;
-            for (int i=0; i<10; i++)
-            {
-                for(int j = 0; j<binWalls ; j++)
-                {
-                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
-                }
-            }
-
-            //Creating bottom pegs for prize bins
-            vector<Peg> bottomPegs;
-            for (int i=0; i<250; i++)
-            {
-                bottomPegs.push_back(Peg());
-                bottomPegs[i].setPosition(i*2,505);
-            }
-
-
-            //Putting all pegs into allPegs
-            allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
-            allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
-            allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
-            allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
-
-            pegNumber=allPegs.size();
-    }
-
-        //if R was pressed
-        if (c == 'R')
-        {
-            allPegs.clear();
-
-            vector<Peg> pegVec;
-            for (int i=0; i<65; i++)
-            {
-                pegVec.push_back(Peg());
-                pegVec[i].setRandomPosition();
-            }
-            checkForUniquePosition(pegVec);
-
-            //Create Prize Bins
-            vector<Peg> binPegs;
-            for (int i=0; i<100; i++)
-                {binPegs.push_back(Peg());}
-            int binWalls = 10;
-            for (int i=0; i<10; i++)
-            {
-                for(int j = 0; j<binWalls ; j++)
-                {
-                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
-                }
-            }
-
-            //Creating bottom pegs for prize bins
-            vector<Peg> bottomPegs;
-            for (int i=0; i<250; i++)
-            {
-                bottomPegs.push_back(Peg());
-                bottomPegs[i].setPosition(i*2,505);
-            }
-
-            //Putting all pegs into allPegs
-            allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
-            allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
-            allPegs.insert(allPegs.end(),pegVec.begin(),pegVec.end());
-
-            pegNumber=allPegs.size();
-        }
+        {boardPegs = setupOriginalBoard();}
+    if (c == 'R')
+        {boardPegs = setupRandomBoard();}
+    binPegs = setupBinPegs();
+    bottomPegs = setupBottomPegs();
+    allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
+    allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
+    allPegs.insert(allPegs.end(),boardPegs.begin(),boardPegs.end());
 ////////////////////////////////////////////////////////////////////////////////////////
 
 	// Start the game loop
@@ -385,8 +258,6 @@ void gamefunc(char c)
         //don't know why it should be this #, but it works
             if(position.y>=485)
             {
-                gamemusic.stop();
-
                 isInBin=1;
 
                 //determining the amount of money awarded
@@ -415,11 +286,11 @@ void gamefunc(char c)
 
             //initializing bounceCount vector
             if (colorCounter==0)
-                bounceCount.resize(pegNumber,0);
+                bounceCount.resize(allPegs.size(),0);
                 //kept the index of i the same by making the vector to include all pegs
 
             //changing pegs that have a collision with the chip
-            for (int i=350; i<pegNumber; i++)
+            for (int i=350; i<allPegs.size(); i++)
             {
                 if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
                         (testChip.getRadius()+allPegs[i].getRadius()))
@@ -452,11 +323,119 @@ void gamefunc(char c)
                     chipCanDrop=0;
                     winfunc(window_width, window_height, window, c, totalMoney, allPegs);
                 }
-                chipError.setString("Move Mouse to Top of Board\n \n    to Drop Next Chip");
+                chipError.setColor(sf::Color::Blue);
+                chipError.setString("Move Mouse to Top \n \n    of Board\n \nto Drop Next Chip");
                 counter=0;
                 mouseWasPressed=0;
             }
         }
     }
 //    return EXIT_SUCCESS;
+}
+
+void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by reference
+{
+    int pegSize = pegVec.size();
+    //int chipDiameter=30; //need to make this PlinkoChip().getRadius()*2
+
+
+    for (int i=0; i<pegSize; i++)
+    {
+        for (int j=0; j<pegSize; j++)
+        {
+            sf::Vector2f position = pegVec[i].getPosition();
+            sf::Vector2f otherPosition = pegVec[j].getPosition();
+
+            float xdistanceSquared=(position.x-otherPosition.x)*(position.x-otherPosition.x);
+            float ydistanceSquared=(position.y-otherPosition.y)*(position.y-otherPosition.y);
+
+            float distance=sqrt(xdistanceSquared+ydistanceSquared);
+
+            double collisionDistance=45;
+            //2*pegVec[i].getRadius()+chipDiameter;
+
+            //if a stone is to be created too close to a different stone, then reset this process
+            if(distance<=collisionDistance && i!=j)
+            {
+                pegVec[i].setRandomPosition();
+                j=-1; // because j++ before it repeats through the loop
+            }
+        }
+    }
+}
+
+vector<Peg> setupOriginalBoard()
+{
+            vector<Peg> allPegs;
+
+            const int pegsPerLineOdd=9;
+            const int pegsPerLineEven=10;
+
+            //creating oddPegs vector
+            vector<Peg> oddPegs;
+            for (int i=0; i<36; i++)
+                {oddPegs.push_back(Peg());}
+            int oddSIZE=oddPegs.size();
+            int oddLine=0;
+            for (int i=0; i<oddSIZE; i++)
+            {
+                int offset=50;
+                if (i%pegsPerLineOdd==0 && i!=0)
+                    {oddLine++;}
+                oddPegs[i].setPosition(offset+(i%pegsPerLineOdd)*50,50+100*oddLine);
+            }
+
+            //creating evenPegs vector
+            vector<Peg> evenPegs;
+            for (int i=0; i<40; i++)
+                {evenPegs.push_back(Peg());}
+            int evenSIZE=evenPegs.size();
+            int evenLine=0;
+            for (int i=0; i<evenSIZE; i++)
+            {
+                int offset=25;
+                if (i%pegsPerLineEven==0 && i!=0)
+                    {evenLine++;}
+                evenPegs[i].setPosition(offset+(i%pegsPerLineEven)*50,100+100*evenLine);
+            }
+            allPegs.insert(allPegs.end(),evenPegs.begin(),evenPegs.end());
+            allPegs.insert(allPegs.end(),oddPegs.begin(),oddPegs.end());
+            return allPegs;
+}
+vector<Peg> setupRandomBoard()
+{
+            vector<Peg> pegVec;
+            for (int i=0; i<65; i++)
+            {
+                pegVec.push_back(Peg());
+                pegVec[i].setRandomPosition();
+            }
+            checkForUniquePosition(pegVec);
+            return pegVec;
+}
+vector<Peg> setupBinPegs()
+{
+        vector<Peg> binPegs;
+            for (int i=0; i<100; i++)
+                {binPegs.push_back(Peg());}
+            int binWalls = 10;
+            for (int i=0; i<10; i++)
+            {
+                for(int j = 0; j<binWalls ; j++)
+                {
+                    binPegs[i*binWalls+j].setPosition(j*55.5,500-i*4);
+                }
+            }
+
+            return binPegs;
+}
+vector<Peg> setupBottomPegs()
+{
+            vector<Peg> bottomPegs;
+            for (int i=0; i<250; i++)
+            {
+                bottomPegs.push_back(Peg());
+                bottomPegs[i].setPosition(i*2,505);
+            }
+            return bottomPegs;
 }
