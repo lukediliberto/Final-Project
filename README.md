@@ -1,12 +1,12 @@
 # Final-Project
 //This group is comprised of David, Luke, and Pat.
 
-Thought this would be a good place to put our TODO list....
-
 ***TO DO***
+Design Stuff: sounds, gameplay music, transition sounds, board corner images, improve background image, fix spacing of text all around
 
-Luke - sounds, mute, background texture, error hanndling for chip doesn't move, multi-game play.
+Functions: mute (text when mute is selectedto Unmute.) 
 
-Pat - menu consolidation, orig, random, ending menu;
+Bugs: Occassional strange behavior at bins
 
-David - Bottom Score Board and bin delay stuff
+
+

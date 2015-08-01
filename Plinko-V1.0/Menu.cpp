@@ -361,12 +361,12 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
     winitems.push_back("Play Again");
     winitems.push_back("Main Menu");
     winitems.push_back("Quit");
-    winitems.push_back("Clear High Scores");
+    winitems.push_back("Clear High \n  Scores");
 
-    Menu winmenu(width, height, winitems.size(), sf::Color::Green);
+    Menu winmenu(width, height, winitems.size(), sf::Color::Green, 22);
 
     for(int i = 0; i<winitems.size(); i++)
-        {winmenu.SetMenuItems(i, winitems[i]);};
+        {winmenu.SetMenuItems(i, winitems[i]);}
 
     sf::Text finalDialogue;
 
@@ -386,7 +386,7 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
         awaitNameEntry = true;}
     else if(cash != 0)
         money="Congratulations!!!\n\n   You win: $"+ money;
-    else if(cash = 0)
+    else if(cash == 0)
         money="You win $0\nBetter Luck Next Time";//POSTION THIS TEXT IN CENTER
     finalDialogue.setFont(font);
     finalDialogue.setCharacterSize(24);
@@ -411,16 +411,17 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
             if(i == userRank)
             scores[i].setColor(sf::Color::Red);
             if(i<5)
-                scores[i].setPosition(width/10, height/4 +100 +i*20);
+                scores[i].setPosition(width/26, height/4 +100 +i*20);
             else
-                scores[i].setPosition(width*3/5, height/4 + i*20);
+                scores[i].setPosition(width/2, height/4 + i*20);
         }
 
     int counter = 5;
 	// Start the game loop
 //for name entry
 std::string userstr;
-//sf::Text nametext;
+int usrcount = 0;
+
     while (winwindow.isOpen())
     {
         // Process events
@@ -434,10 +435,11 @@ std::string userstr;
                     case sf::Event::Closed:
                         winwindow.close();
                     case sf::Event::TextEntered:
-                        if (isalnum(event.text.unicode))
+                        if (isalnum(event.text.unicode)&&usrcount <7 )
                         {
                             userstr += static_cast<char>(event.text.unicode);
                             leaderboard[userRank].name = userstr;
+                            usrcount++;
                         }
                     case sf::Event::KeyReleased:
                         switch(event.key.code)
@@ -449,7 +451,8 @@ std::string userstr;
                             case sf::Keyboard::BackSpace:
                                     try
                                     {userstr.erase(userstr.size() - 1);
-                                    leaderboard[userRank].name = userstr;}
+                                    leaderboard[userRank].name = userstr;
+                                    usrcount--;}
                                     catch(std::out_of_range)
                                     {break;}
                                 break;
@@ -586,9 +589,7 @@ winwindow.draw(chipText);
         if(!awaitNameEntry)
             {winmenu.draw(winwindow);}
         winwindow.display();
-
     }
-
 }
 
 //Load the leaderboard and sort and return the scores

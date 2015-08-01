@@ -5,8 +5,6 @@
 #include "Peg.h"
 #include "MomentumTransfer.h"
 #include "Menu.h"
-
-
 #include <SFML/Audio.hpp>
 #include <string>
 
@@ -21,7 +19,7 @@ vector<Peg> setupBottomPegs();
 
 void gamefunc(char c)
 {
-    int maxNumberOfChips=3;
+    int maxNumberOfChips=1;
     int totalMoney=0;
     int chipCount=0;
 
@@ -39,8 +37,9 @@ void gamefunc(char c)
     backgroundTexture.loadFromFile("Background.png");
     sf::Sprite backgroundSprite;
     backgroundSprite.setTexture(backgroundTexture);
+    backgroundSprite.setColor(sf::Color::Red);
     backgroundSprite.setScale(1.7,1.7);
-    backgroundSprite.setColor(sf::Color(0, 0, 0, 0));
+    backgroundSprite.setColor(sf::Color(0, 0, 0, 255));
 
     // select the font
     sf::Font font;
@@ -127,7 +126,6 @@ void gamefunc(char c)
     vector<Peg> binPegs;
     vector<Peg> bottomPegs;
     vector<Peg> allPegs;
-    int pegNumber=0;
 
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
