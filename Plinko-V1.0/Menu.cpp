@@ -337,12 +337,6 @@ void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard);
 
 void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs)
 {
-
-    sf::Sound gamebeep;
-    sf::SoundBuffer beepBuffer;
-    beepBuffer.loadFromFile("beep.ogg");
-    gamebeep.setBuffer(beepBuffer);
-
     sf::Font font;
     if(!font.loadFromFile("PLINKO2K.TTF"));
         cout<<"Error loading font (WinFunc)"<<endl;
@@ -390,9 +384,9 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
     if(cash >= leaderboard[9].score)
         {money = "Congratulations!!!\n You Are #"+ to_string(userRank+1) + "\n Enter Your Name";
         awaitNameEntry = true;}
-    if((cash != 0)&&(cash<leaderboard[10].score))
+    else if(cash != 0)
         money="Congratulations!!!\n\n   You win: $"+ money;
-    if(cash = 0)
+    else if(cash = 0)
         money="You win $0\nBetter Luck Next Time";//POSTION THIS TEXT IN CENTER
     finalDialogue.setFont(font);
     finalDialogue.setCharacterSize(24);
@@ -580,10 +574,11 @@ winwindow.draw(chipText);
 ////////////////////////////////////////////////////////////////////////////////////////////
         counter++;
 ////////////////////////////////////////////////////////////////////////////////////////////
-
-        string updateline;
+    if(awaitNameEntry)
+        {string updateline;
         updateline = to_string(userRank+1) + ". "+ leaderboard[userRank].name + " $"+ to_string(leaderboard[userRank].score);
-        scores[userRank].setString(updateline);
+        scores[userRank].setString(updateline);}
+
         winwindow.draw(finalDialogue);
         winwindow.draw(high);
         for(int i = 0; i<10; i++)

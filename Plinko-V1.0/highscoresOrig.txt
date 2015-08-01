@@ -1,11 +1,10 @@
-Luke 30000
-David 3500
-Luke 2500
-Patrick 1000
-David 1000
-Luke 1000
-David 500
-Patrick 100
-David 100
-Luke 0
-
+Luke 10001
+MOMONEY 10001
+cdfd 10001
+Awesome 10001
+David 10001
+Luke 10001
+Tate 10001
+Nigel 10001
+Sis 10001
+LILy 10001
