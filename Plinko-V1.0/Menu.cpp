@@ -264,7 +264,7 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
 }
 
 //PAUSE MENU
-void pausefunc(float width, float height, sf::RenderWindow &pausewindow)
+void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sound &gamemusic)
 {
     vector<string> pauseitems;
     pauseitems.push_back("Resume");
@@ -288,6 +288,7 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow)
             {
             // Close window : exit
             case sf::Event::Closed:
+                gamemusic.stop();
                 pausewindow.close();
             case sf::Event::KeyReleased:
                 switch(event.key.code)
@@ -307,10 +308,12 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow)
                             mode = 0;
                             break;
                         case 1:
+                            gamemusic.stop();
                             pausewindow.close();
                             menufunc(500, 500);
                             break;
                         case 2:
+                            gamemusic.stop();
                             pausewindow.close();
                             break;
                         }
@@ -337,6 +340,17 @@ void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard);
 
 void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs)
 {
+
+    sf::Sound winmusic;
+    sf::SoundBuffer winbuffer;
+    if(cash > 0)
+        winbuffer.loadFromFile("winmusic.wav");
+    if(cash == 0)
+        winbuffer.loadFromFile("sadmusic.wav");
+    winmusic.setBuffer(winbuffer);
+    winmusic.setLoop(true);
+    winmusic.play();
+
     sf::Font font;
     if(!font.loadFromFile("PLINKO2K.TTF"));
         cout<<"Error loading font (WinFunc)"<<endl;
@@ -446,6 +460,8 @@ int usrcount = 0;
                         {
                             case sf::Keyboard::Return:
                                 awaitNameEntry = false;
+                                if(userstr.empty())
+                                    {leaderboard[userRank].name = "-";}
                                 writeLeaderBoardFile(c, leaderboard);
                                 break;
                             case sf::Keyboard::BackSpace:
@@ -468,6 +484,7 @@ int usrcount = 0;
                 {
                 case sf::Event::Closed:
                     winwindow.close();
+                    winmusic.stop();
                 case sf::Event::KeyReleased:
                     switch(event.key.code)
                     {
@@ -481,14 +498,17 @@ int usrcount = 0;
                             switch(winmenu.GetSelected())
                              {
                             case 0:
+                                winmusic.stop();
                                 winwindow.close();
                                 gamefunc(c);
                                 break;
                             case 1:
+                                winmusic.stop();
                                 winwindow.close();
                                 menufunc(500, 500);
                                 break;
                             case 2:
+                                winmusic.stop();
                                 winwindow.close();
                                 break;
                             case 3:
@@ -513,10 +533,10 @@ int usrcount = 0;
 ////////////////////////////////////////////////////////////////////////////////////////////
 //BLINK RATE METHOD BEGIN
         int blinkrate = 30;
-        //Change peg colors, slows down menu functionality
+    if(cash > 0)
+    {
         for(int i = 0; i<allPegs.size(); i++)
         {
-            //sleep and change pegs, un-comment usleep below to test
             if(counter % blinkrate == 0 && i % 2 == 0)
             {
                 allPegs[i].setFillColor(sf::Color::Cyan);
@@ -538,6 +558,7 @@ int usrcount = 0;
                 finalDialogue.setColor(sf::Color::Yellow);
             }
        }
+    }
         winwindow.clear(sf::Color::White);
         for(int i=0; i<allPegs.size();i++)
             {winwindow.draw(allPegs[i]);}
@@ -590,6 +611,7 @@ winwindow.draw(chipText);
             {winmenu.draw(winwindow);}
         winwindow.display();
     }
+    winmusic.stop();
 }
 
 //Load the leaderboard and sort and return the scores

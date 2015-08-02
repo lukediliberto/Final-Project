@@ -19,7 +19,7 @@ vector<Peg> setupBottomPegs();
 
 void gamefunc(char c)
 {
-    int maxNumberOfChips=1;
+    int maxNumberOfChips=3;
     int totalMoney=0;
     int chipCount=0;
 
@@ -170,7 +170,7 @@ void gamefunc(char c)
 
             //P Pressed: Pause
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
-                pausefunc(window_width, window_height, window);
+                {pausefunc(window_width, window_height, window, gamemusic);}
 
             //Mouse moved
             if(event.type == sf::Event::MouseMoved && counter == 0)
@@ -259,8 +259,6 @@ void gamefunc(char c)
         //don't know why it should be this #, but it works
             if(position.y>=485)
             {
-                gamemusic.stop();
-
                 isInBin=1;
 
                 //determining the amount of money awarded
@@ -324,6 +322,7 @@ void gamefunc(char c)
                 if (chipCount==maxNumberOfChips) //this occurs when you run out of chips
                 {
                     chipCanDrop=0;
+                    gamemusic.stop();
                     winfunc(window_width, window_height, window, c, totalMoney, allPegs);
                 }
                 chipError.setColor(sf::Color::Blue);

@@ -2,6 +2,7 @@
 #define MENU_H
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include "Game.h"
 #include "Peg.h"
 #include <iostream>
@@ -37,7 +38,7 @@ class Menu
 
 void menufunc(float width, float height);
 void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu menu);
-void pausefunc(float width, float height, sf::RenderWindow &window);
+void pausefunc(float width, float height, sf::RenderWindow &window, sf::Sound &gamemusic);
 void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs);
 
 
