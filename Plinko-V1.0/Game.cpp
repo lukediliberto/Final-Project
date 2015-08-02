@@ -17,9 +17,44 @@ vector<Peg> setupRandomBoard();
 vector<Peg> setupBinPegs();
 vector<Peg> setupBottomPegs();
 
+
+bool checkForValidBinPosition(PlinkoChip testChip)
+{
+    sf::Vector2f position = testChip.getPosition();
+    double radius=testChip.getRadius();
+
+    double binwidth=55.5;
+
+    bool validXposition=0;
+
+    if (position.x>=0+radius && position.x<=binwidth-radius)
+        validXposition=1;
+    else if (position.x>=binwidth+radius && position.x<=2*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=2*binwidth+radius && position.x<=3*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=3*binwidth+radius && position.x<=4*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=4*binwidth+radius && position.x<=5*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=5*binwidth+radius && position.x<=6*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=6*binwidth+radius && position.x<=7*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=7*binwidth+radius && position.x<=8*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=8*binwidth+radius && position.x<=9*binwidth-radius)
+        validXposition=1;
+    else
+        validXposition=0;
+
+    return validXposition;
+}
+
+
 void gamefunc(char c)
 {
-    int maxNumberOfChips=1;
+    int maxNumberOfChips=3;
     int totalMoney=0;
     int chipCount=0;
 
@@ -130,6 +165,7 @@ void gamefunc(char c)
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
 
+    bool finishedDropping=0;
     bool isInBin=0;
     bool mouseWasPressed=0;
     bool chipCanDrop=1;
@@ -142,7 +178,7 @@ void gamefunc(char c)
         cout<<"Error loading Font (game Funciton)"<<endl;
     sf::Text chipError("", errorFont, 20);
     chipError.setPosition(window_width/4.5, window_height/4.2);
-    chipError.setColor(sf::Color::Magenta);
+    chipError.setColor(sf::Color::Blue);
 
 ////////////////////////////////////////////////////////////////////////////////////////
     //Set up the Board and Bins
@@ -178,8 +214,11 @@ void gamefunc(char c)
 
             //Mouse pressed
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y >= 20 && counter == 0)
-                {chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
-				gamebeep.play();};
+                {
+                chipError.setString("Chip Must Be Dropped\n \n    at top of Board");
+				gamebeep.play();
+				chipError.setPosition(window_width/4.5, window_height/4.2);
+				}
             if(event.type == sf::Event::MouseButtonPressed && testChip.getPosition().y < 20 && chipCanDrop)
             {
                 mouseWasPressed=1;
@@ -218,6 +257,7 @@ void gamefunc(char c)
         {
             counter=1;
             isInBin=0;
+            finishedDropping=0;
         }
 
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -240,27 +280,78 @@ void gamefunc(char c)
 
             //if the chip reaches a bin:
             sf::Vector2f position = testChip.getPosition();
-            sf::Vector2f velocity = testChip.getVelocity();
 
-            //if the chip lands on a bottom peg, stop it and increment delay counter
+            //if the chip lands on a bottom peg, then, it has "finished dropping"
             for(int i=0; i<250; i++)
             {
                 if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
                                 (testChip.getRadius()+allPegs[i].getRadius()))
                 {
-                    testChip.setVelocity(0,0);
-                    testChip.setPosition(position.x,505+0.5-allPegs[i].getRadius()-testChip.getRadius());
+                    for (int j=250; j<350; j++)
+                    {
+                        if (getDistance(testChip.getNextPosition(),allPegs[j].getPosition())<=
+                                (testChip.getRadius()+allPegs[j].getRadius()))
+                            {finishedDropping=0;}
+                        else
+                            finishedDropping=1;
+                    }
+                }
+            }
+
+            //edit this section:
+
+            bool hasValidXPosition=0;
+            hasValidXPosition=checkForValidBinPosition(testChip);
+
+
+            if (finishedDropping && hasValidXPosition)
+            {
+                testChip.setVelocity(0,0);
+                testChip.setPosition(position.x,505+0.5-allPegs[0].getRadius()-testChip.getRadius());
+            }
+        //this is where the funky stuff happens!
+            else
+            {
+                for (int j=0; j<350; j++)
+                {
+                    if (getDistance(testChip.getNextPosition(),allPegs[j].getPosition())<=
+                            (testChip.getRadius()+allPegs[j].getRadius()))
+                    {
+                        while (!hasValidXPosition)
+                        {
+                            MomentumTransfer(testChip,allPegs[j]);
+                            hasValidXPosition=checkForValidBinPosition(testChip);
+                            testChip.setNextPosition();
+                            testChip.setPosition(testChip.getNextPosition().x,testChip.getNextPosition().y);
+                            testChip.applyGravity();
+                            //cout << "Checking..." << endl;
+
+                            //redrawing the updated position
+                            window.clear(sf::Color::White);
+                            window.draw(backgroundSprite);
+                            for (int i=0; i<allPegs.size(); i++)
+                                    {window.draw(allPegs[i]);}
+                            window.draw(testChip);
+                            window.draw(chipError);
+                            for(int i = 0; i<9; i++)
+                                window.draw(binMoney[i]);
+                            window.draw(scoreboard);
+                            window.draw(chipText);
+                            window.draw(moneyText);
+                            // Update the window
+                            window.display();
+                            window.setFramerateLimit(FRAME_RATE);
+                        }
+                    }
                 }
             }
 
             double binwidth=55.5;
             int money=0;
 
-        //don't know why it should be this #, but it works
-            if(position.y>=485)
+        //editing this section
+            if(position.y>=485 && finishedDropping)
             {
-                gamemusic.stop();
-
                 isInBin=1;
 
                 //determining the amount of money awarded
@@ -324,14 +415,18 @@ void gamefunc(char c)
                 if (chipCount==maxNumberOfChips) //this occurs when you run out of chips
                 {
                     chipCanDrop=0;
+                    gamemusic.stop();
                     winfunc(window_width, window_height, window, c, totalMoney, allPegs);
                 }
                 chipError.setColor(sf::Color::Blue);
-                chipError.setString("Move Mouse to Top \n \n    of Board\n \nto Drop Next Chip");
+                //chipError.setString("Move Mouse to Top \n \n    of Board\n \nto Drop Next Chip");
                 counter=0;
                 mouseWasPressed=0;
                 chipError.setString("Move Mouse to Top of Board\n \n       to Drop Next Chip");
                 chipError.setPosition(window_width/7.5, window_height/4.2);
+                //Failsafe for if the chip lands incorrectly.
+                //This will prevent the next chip from being affected.
+                testChip.setVelocity(0,0);
             }
         }
     }
