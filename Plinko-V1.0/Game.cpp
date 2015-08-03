@@ -23,6 +23,7 @@ void gamefunc(char c)
     int maxNumberOfChips=3;
     int totalMoney=0;
     int chipCount=0;
+    int round = 0;
 
     int FRAME_RATE = 60;
     int window_width = 500;
@@ -226,9 +227,9 @@ void gamefunc(char c)
         window.draw(rightPlinkoDoor);
         window.draw(chipText);
         window.draw(moneyText);
-        if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x>-180)
+        if(round == 1 && leftPlinkoDoor.getPosition().x>-180)
             {leftPlinkoDoor.move(-5,0);}
-        if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x ==-180 && rightPlinkoDoor.getPosition().x<1000 && chipCount != 1)
+        if(round == 2 && leftPlinkoDoor.getPosition().x ==-180 && rightPlinkoDoor.getPosition().x<1000)
             {rightPlinkoDoor.move(5,0);
             rightPlinkoDoor.rotate(20);}
 
@@ -366,6 +367,7 @@ void gamefunc(char c)
 
                 totalMoney=totalMoney+money;
                 moneyText.setString("$"+to_string(totalMoney));
+                round++;
             }
 
             //initializing bounceCount vector
