@@ -13,7 +13,6 @@ class Peg: public sf::CircleShape
 
     public:
         Peg();
-        Peg(float xPos, float yPos, float rad, uint8_t r, uint8_t g, uint8_t b, float damping);
         void setVelocity(float,float);
         void continueVelocity();
         sf::Vector2f getVelocity();

@@ -12,44 +12,11 @@ using namespace std;
 
 //this function is used to ensure that each stone has a unique position
 void checkForUniquePosition (vector<Peg> &pegVec);
+bool checkForValidBinPosition(PlinkoChip testChip);
 vector<Peg> setupOriginalBoard();
 vector<Peg> setupRandomBoard();
 vector<Peg> setupBinPegs();
 vector<Peg> setupBottomPegs();
-
-
-bool checkForValidBinPosition(PlinkoChip testChip)
-{
-    sf::Vector2f position = testChip.getPosition();
-    double radius=testChip.getRadius();
-
-    double binwidth=55.5;
-
-    bool validXposition=0;
-
-    if (position.x>=0+radius && position.x<=binwidth-radius)
-        validXposition=1;
-    else if (position.x>=binwidth+radius && position.x<=2*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=2*binwidth+radius && position.x<=3*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=3*binwidth+radius && position.x<=4*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=4*binwidth+radius && position.x<=5*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=5*binwidth+radius && position.x<=6*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=6*binwidth+radius && position.x<=7*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=7*binwidth+radius && position.x<=8*binwidth-radius)
-        validXposition=1;
-    else if (position.x>=8*binwidth+radius && position.x<=9*binwidth-radius)
-        validXposition=1;
-    else
-        validXposition=0;
-
-    return validXposition;
-}
 
 void gamefunc(char c)
 {
@@ -65,15 +32,6 @@ void gamefunc(char c)
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Plinko!!!");
     window.setPosition(sf::Vector2i(0,0));
-
-//    Background for gameboard. Still messing around with this...[Luke]
-    sf::Texture backgroundTexture;
-    backgroundTexture.loadFromFile("Background.png");
-    sf::Sprite backgroundSprite;
-    backgroundSprite.setTexture(backgroundTexture);
-    backgroundSprite.setColor(sf::Color::Red);
-    backgroundSprite.setScale(1.7,1.7);
-    backgroundSprite.setColor(sf::Color(0, 0, 0, 0));
 
     // select the font
     sf::Font font;
@@ -117,15 +75,15 @@ void gamefunc(char c)
     PlinkoChip testChip(0,0,260,0,windowbound,window_width,window_height);
     //create texture for plinkochip
     //texture stuff:
-    sf::Texture texture;
-    texture.loadFromFile("plinkoimage.png");
-    testChip.setTexture(&texture);
+    sf::Texture chipTexture;
+    chipTexture.loadFromFile("plinkoimage.png");
+    testChip.setTexture(&chipTexture);
 
     //sounds
-    sf::Sound sound, selectionMusic, gamebeep, gamemusic;
-    sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
-    buffer.loadFromFile("boing.wav");
-    sound.setBuffer(buffer);
+    sf::Sound collisionSound, selectionMusic, gamebeep, gamemusic;
+    sf::SoundBuffer collisionBuffer, gameplayBuffer, beepBuffer, selectionBuffer;
+    collisionBuffer.loadFromFile("boing.wav");
+    collisionSound.setBuffer(collisionBuffer);
     gameplayBuffer.loadFromFile("gamemelody.wav");
     beepBuffer.loadFromFile("beep.ogg");
     selectionBuffer.loadFromFile("selection2.wav");
@@ -149,9 +107,9 @@ void gamefunc(char c)
 
     sf::Sprite scoreboard(scoreboardTexture);
     scoreboard.setPosition(175,510);
-
+//685
     sf::Sprite brita(britaTexture);
-    brita.setPosition(175+150+10,513);
+    brita.setPosition(335,513);
     brita.setScale(.5,.5);
 
     sf::Sprite leftPlinkoDoor(leftPlinkoDoorTexture);
@@ -163,8 +121,10 @@ void gamefunc(char c)
     mop.setScale(.3,.4);
 
     sf::Sprite rightPlinkoDoor(rightPlinkoDoorTexture);
-    rightPlinkoDoor.setPosition(175+150+10,513);
     rightPlinkoDoor.setScale(.185,.17);
+    rightPlinkoDoor.setOrigin(415,599);
+    rightPlinkoDoor.setPosition(408,614);
+
 
     string initialMoney=to_string(totalMoney);
 
@@ -177,8 +137,6 @@ void gamefunc(char c)
     chipText.setString(initalChips);
     chipText.setPosition(283,623);
     chipText.setColor(sf::Color::Black);
-
-
 ////////////////////////////////////////////////////////////////////////////////////////
     vector<Peg> boardPegs;
     vector<Peg> binPegs;
@@ -196,10 +154,7 @@ void gamefunc(char c)
     //count if chip set
     int counter = 0;
     //Error message for low chip placement
-    sf::Font errorFont;
-    if(!errorFont.loadFromFile("PLINKO2K.TTF"))
-        cout<<"Error loading Font (game Funciton)"<<endl;
-    sf::Text chipError("", errorFont, 20);
+    sf::Text chipError("", font, 20);
     chipError.setPosition(window_width/4.5, window_height/4.2);
     chipError.setColor(sf::Color::Blue);
 
@@ -254,7 +209,6 @@ void gamefunc(char c)
         // Clear screen
         window.clear(sf::Color::White);
 
-        window.draw(backgroundSprite);
 
         // Draw the sprite
         for (int i=0; i<allPegs.size(); i++)
@@ -274,8 +228,9 @@ void gamefunc(char c)
         window.draw(moneyText);
         if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x>-180)
             {leftPlinkoDoor.move(-5,0);}
-        if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x ==-180 && rightPlinkoDoor.getPosition().x<500 && chipCount != 1)
-            {rightPlinkoDoor.move(5,0);}
+        if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x ==-180 && rightPlinkoDoor.getPosition().x<1000 && chipCount != 1)
+            {rightPlinkoDoor.move(5,0);
+            rightPlinkoDoor.rotate(20);}
 
 
         // Update the window
@@ -360,7 +315,6 @@ void gamefunc(char c)
 
                             //redrawing the updated position
                             window.clear(sf::Color::White);
-                            window.draw(backgroundSprite);
                             for (int i=0; i<allPegs.size(); i++)
                                     {window.draw(allPegs[i]);}
                             window.draw(testChip);
@@ -426,7 +380,7 @@ void gamefunc(char c)
                         (testChip.getRadius()+allPegs[i].getRadius()))
                 {
                     //make boing sound
-                    sound.play();
+                    collisionSound.play();
 
                     //change color of peg depending on number of bounces on same peg
                     //have it rotate through same few colors (total: 5)
@@ -575,4 +529,37 @@ vector<Peg> setupBottomPegs()
                 bottomPegs[i].setPosition(i*2,505);
             }
             return bottomPegs;
+}
+
+bool checkForValidBinPosition(PlinkoChip testChip)
+{
+    sf::Vector2f position = testChip.getPosition();
+    double radius=testChip.getRadius();
+
+    double binwidth=55.5;
+
+    bool validXposition=0;
+
+    if (position.x>=0+radius && position.x<=binwidth-radius)
+        validXposition=1;
+    else if (position.x>=binwidth+radius && position.x<=2*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=2*binwidth+radius && position.x<=3*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=3*binwidth+radius && position.x<=4*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=4*binwidth+radius && position.x<=5*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=5*binwidth+radius && position.x<=6*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=6*binwidth+radius && position.x<=7*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=7*binwidth+radius && position.x<=8*binwidth-radius)
+        validXposition=1;
+    else if (position.x>=8*binwidth+radius && position.x<=9*binwidth-radius)
+        validXposition=1;
+    else
+        validXposition=0;
+
+    return validXposition;
 }

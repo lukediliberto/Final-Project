@@ -13,19 +13,6 @@ Peg::Peg()
     velocity.y=0;
 
 }
-//overload constructor for inline position setting and peg v bin colors etc.
-Peg::Peg(float xPos, float yPos, float rad, uint8_t r, uint8_t g, uint8_t b, float d)
-{
-    setRadius(rad);
-    sf::Color pegColor(r,g,b);
-    setFillColor(pegColor);
-    setOrigin(sf::Vector2f(5,5));
-    setPointCount(100);
-    setPosition(xPos,yPos);
-    velocity.x=0;
-    velocity.y=0;
-    //setDamping(d);
-}
 
 void Peg::setVelocity(float xspeed,float yspeed)
 {

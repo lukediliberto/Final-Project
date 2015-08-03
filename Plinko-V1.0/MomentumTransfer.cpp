@@ -98,5 +98,4 @@ void MomentumTransfer(PlinkoChip& c1, Peg& p1)
                 c1.setIsColliding(0);
             }
         }
-
 }

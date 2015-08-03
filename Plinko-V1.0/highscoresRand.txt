@@ -1,10 +1,10 @@
+Nancy 20000
+Ted 11500
 AAA 11100
+- 10100
 DBEst 2500
 Bestie 2100
 VICTORY 1500
 Almost 1200
 - 1000
 ben 1000
-- 1000
-Telluri 1000
-MorGan 1000
