@@ -271,10 +271,11 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
     pauseitems.push_back("Main Menu");
     pauseitems.push_back("Quit");
 
-    Menu pausemenu(width, height, pauseitems.size());
-
+    Menu pausemenu(width, height, pauseitems.size(), sf::Color::Magenta, 24);
+//Menu::Menu(float width, float height, int num, sf::Color color = sf::Color::Magenta, unsigned int textsize = 30)
     for(int i = 0; i<pauseitems.size(); i++)
         {pausemenu.SetMenuItems(i, pauseitems[i]);};
+
 
     int mode = -1;
 	// Start the game loop
@@ -357,19 +358,31 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
     sf::Texture scoreboardTexture;
     scoreboardTexture.loadFromFile("scoreboard.png"); //put possible failure statement here
     sf::Sprite scoreboard(scoreboardTexture);
-    scoreboard.setPosition(175,525);
+    scoreboard.setPosition(175,510);
     sf::Text chipText, moneyText;
 
     chipText.setFont(font);
     chipText.setCharacterSize(24);
     chipText.setColor(sf::Color::Black);
     chipText.setString(to_string(0));
-    chipText.setPosition(283,638);
+    chipText.setPosition(283,623);
 
     moneyText.setFont(font);
     moneyText.setCharacterSize(24);
     moneyText.setColor(sf::Color::Black);
-    moneyText.setPosition(195,550);
+    moneyText.setPosition(195,535);
+
+    sf::Texture rightPlinkoDoorTexture;
+    rightPlinkoDoorTexture.loadFromFile("rightplinkodoor.png");
+    sf::Sprite rightPlinkoDoor(rightPlinkoDoorTexture);
+    rightPlinkoDoor.setPosition(175+150+10,513);
+    rightPlinkoDoor.setScale(.185,.17);
+
+    sf::Texture leftPlinkoDoorTexture;
+    leftPlinkoDoorTexture.loadFromFile("leftplinkodoor.png");
+    sf::Sprite leftPlinkoDoor(leftPlinkoDoorTexture);
+    leftPlinkoDoor.setPosition(5,513);
+    leftPlinkoDoor.setScale(.185,.17);
 
     vector<string> winitems;
     winitems.push_back("Play Again");
@@ -594,6 +607,7 @@ int usrcount = 0;
 winwindow.draw(scoreboard);
 winwindow.draw(moneyText);
 winwindow.draw(chipText);
+winwindow.draw(rightPlinkoDoor);
 //SLEEP METHOD END
 ////////////////////////////////////////////////////////////////////////////////////////////
         counter++;
@@ -609,6 +623,8 @@ winwindow.draw(chipText);
             {winwindow.draw(scores[i]);}
         if(!awaitNameEntry)
             {winmenu.draw(winwindow);}
+        if(awaitNameEntry)
+            {winwindow.draw(leftPlinkoDoor);}
         winwindow.display();
     }
     winmusic.stop();

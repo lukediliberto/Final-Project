@@ -51,7 +51,6 @@ bool checkForValidBinPosition(PlinkoChip testChip)
     return validXposition;
 }
 
-
 void gamefunc(char c)
 {
     int maxNumberOfChips=3;
@@ -60,21 +59,21 @@ void gamefunc(char c)
 
     int FRAME_RATE = 60;
     int window_width = 500;
-    int window_height = 700;
+    int window_height = 685;
     bool windowbound = true;
 
     // Create the main window
     sf::RenderWindow window(sf::VideoMode(window_width, window_height), "Plinko!!!");
     window.setPosition(sf::Vector2i(0,0));
 
-    //Background for gameboard. Still messing around with this...[Luke]
+//    Background for gameboard. Still messing around with this...[Luke]
     sf::Texture backgroundTexture;
     backgroundTexture.loadFromFile("Background.png");
     sf::Sprite backgroundSprite;
     backgroundSprite.setTexture(backgroundTexture);
     backgroundSprite.setColor(sf::Color::Red);
     backgroundSprite.setScale(1.7,1.7);
-    backgroundSprite.setColor(sf::Color(0, 0, 0, 255));
+    backgroundSprite.setColor(sf::Color(0, 0, 0, 0));
 
     // select the font
     sf::Font font;
@@ -121,6 +120,7 @@ void gamefunc(char c)
     sf::Texture texture;
     texture.loadFromFile("plinkoimage.png");
     testChip.setTexture(&texture);
+
     //sounds
     sf::Sound sound, selectionMusic, gamebeep, gamemusic;
     sf::SoundBuffer buffer, gameplayBuffer, beepBuffer, selectionBuffer;
@@ -135,24 +135,47 @@ void gamefunc(char c)
     gamemusic.play();
     gamemusic.setLoop(true);
     selectionMusic.play();
-
     // Load a sprite to display
-    sf::Texture texture2;
-    texture2.loadFromFile("scoreboard.png"); //put possible failure statement here
+    sf::Texture scoreboardTexture;
+    scoreboardTexture.loadFromFile("scoreboard.png"); //put possible failure statement here
+    sf::Texture britaTexture;
+    britaTexture.loadFromFile("brita.png");
+    sf::Texture mopTexture;
+    mopTexture.loadFromFile("LibmanMop.png");
+    sf::Texture leftPlinkoDoorTexture;
+    leftPlinkoDoorTexture.loadFromFile("leftplinkodoor.png");
+    sf::Texture rightPlinkoDoorTexture;
+    rightPlinkoDoorTexture.loadFromFile("rightplinkodoor.png");
 
-    sf::Sprite scoreboard(texture2);
-    scoreboard.setPosition(175,525);
+    sf::Sprite scoreboard(scoreboardTexture);
+    scoreboard.setPosition(175,510);
+
+    sf::Sprite brita(britaTexture);
+    brita.setPosition(175+150+10,513);
+    brita.setScale(.5,.5);
+
+    sf::Sprite leftPlinkoDoor(leftPlinkoDoorTexture);
+    leftPlinkoDoor.setPosition(5,513);
+    leftPlinkoDoor.setScale(.185,.17);
+
+    sf::Sprite mop(mopTexture);
+    mop.setPosition(5,525);
+    mop.setScale(.3,.4);
+
+    sf::Sprite rightPlinkoDoor(rightPlinkoDoorTexture);
+    rightPlinkoDoor.setPosition(175+150+10,513);
+    rightPlinkoDoor.setScale(.185,.17);
 
     string initialMoney=to_string(totalMoney);
 
     moneyText.setString("$"+initialMoney);
     moneyText.setColor(sf::Color::Black);
-    moneyText.setPosition(195,550);
+    moneyText.setPosition(195,535);
 
     string initalChips=to_string(maxNumberOfChips);
 
     chipText.setString(initalChips);
-    chipText.setPosition(283,638);
+    chipText.setPosition(283,623);
     chipText.setColor(sf::Color::Black);
 
 
@@ -192,7 +215,6 @@ void gamefunc(char c)
     allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
     allPegs.insert(allPegs.end(),boardPegs.begin(),boardPegs.end());
 ////////////////////////////////////////////////////////////////////////////////////////
-
 	// Start the game loop
     while (window.isOpen())
     {
@@ -244,8 +266,17 @@ void gamefunc(char c)
             window.draw(binMoney[i]);
 
         window.draw(scoreboard);
+        window.draw(brita);
+        window.draw(mop);
+        window.draw(leftPlinkoDoor);
+        window.draw(rightPlinkoDoor);
         window.draw(chipText);
         window.draw(moneyText);
+        if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x>-180)
+            {leftPlinkoDoor.move(-5,0);}
+        if(testChip.getPosition().y>=485 && finishedDropping && leftPlinkoDoor.getPosition().x ==-180 && rightPlinkoDoor.getPosition().x<500 && chipCount != 1)
+            {rightPlinkoDoor.move(5,0);}
+
 
         // Update the window
         window.display();
@@ -292,6 +323,7 @@ void gamefunc(char c)
                         if (getDistance(testChip.getNextPosition(),allPegs[j].getPosition())<=
                                 (testChip.getRadius()+allPegs[j].getRadius()))
                             {finishedDropping=0;}
+
                         else
                             finishedDropping=1;
                     }
@@ -338,6 +370,10 @@ void gamefunc(char c)
                             window.draw(scoreboard);
                             window.draw(chipText);
                             window.draw(moneyText);
+                            window.draw(brita);
+                            window.draw(mop);
+                            window.draw(leftPlinkoDoor);
+                            window.draw(rightPlinkoDoor);
                             // Update the window
                             window.display();
                             window.setFramerateLimit(FRAME_RATE);
@@ -427,6 +463,7 @@ void gamefunc(char c)
                 //Failsafe for if the chip lands incorrectly.
                 //This will prevent the next chip from being affected.
                 testChip.setVelocity(0,0);
+                selectionMusic.play();
             }
         }
     }
