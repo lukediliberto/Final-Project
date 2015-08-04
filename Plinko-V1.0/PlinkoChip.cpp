@@ -6,7 +6,6 @@ using namespace std;
 PlinkoChip::PlinkoChip()
 {
     setRadius(15);
-    //setFillColor(sf::Color::Black);
     setOrigin(sf::Vector2f(15,15));
     setPointCount(100);
     velocity.x=0;
@@ -17,9 +16,7 @@ PlinkoChip::PlinkoChip()
 PlinkoChip::PlinkoChip(float xVelocity, float yVelocity, float xInitPos,
                         float yInitPos, bool wb, int ww, int wh)
 {
-        //sf::Color ChipDefault(160,160,160);
         setRadius(15);
-        //setFillColor(ChipDefault);
         setOrigin(getRadius(),getRadius());
         setPosition(xInitPos,yInitPos);
         setVelocity(xVelocity,yVelocity);
@@ -85,7 +82,7 @@ void PlinkoChip::setMass(float m)
 
 void PlinkoChip::applyGravity()
 {
-    setVelocity(getVelocity().x,getVelocity().y+.1);
+    setVelocity(getVelocity().x,getVelocity().y+.3);
 }
 
 void PlinkoChip::setNextPosition()

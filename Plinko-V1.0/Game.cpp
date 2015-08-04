@@ -10,7 +10,7 @@
 
 using namespace std;
 
-//this function is used to ensure that each stone has a unique position
+//this function is used to ensure that each peg has a unique position
 void checkForUniquePosition (vector<Peg> &pegVec);
 bool checkForValidBinPosition(PlinkoChip testChip);
 vector<Peg> setupOriginalBoard();
@@ -147,6 +147,7 @@ void gamefunc(char c)
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
 
+    //initializing
     bool finishedDropping=0;
     bool isInBin=0;
     bool mouseWasPressed=0;
@@ -214,7 +215,6 @@ void gamefunc(char c)
         // Clear screen
         window.clear(sf::Color::White);
 
-
         // Draw the sprite
         for (int i=0; i<allPegs.size(); i++)
             {window.draw(allPegs[i]);}
@@ -237,13 +237,13 @@ void gamefunc(char c)
             {rightPlinkoDoor.move(5,0);
             rightPlinkoDoor.rotate(20);}
 
-
         // Update the window
         window.display();
         //set frame rate
         window.setFramerateLimit(FRAME_RATE);
 ////////////////////////////////////////////////////////////////////////////////////////
 
+    //resetting necessary parameters for the next chip to be able to drop properly
         if(mouseWasPressed)
         {
             counter=1;
@@ -269,7 +269,7 @@ void gamefunc(char c)
             testChip.setPosition(testChip.getNextPosition().x,testChip.getNextPosition().y);
             testChip.applyGravity();
 
-            //if the chip reaches a bin:
+            //for if the chip reaches a bin:
             sf::Vector2f position = testChip.getPosition();
 
             //if the chip lands on a bottom peg, then, it has "finished dropping"
@@ -290,18 +290,20 @@ void gamefunc(char c)
                 }
             }
 
-            //edit this section:
-
+            //checking for valid x position (aka valid position for landing in a bin)
             bool hasValidXPosition=0;
             hasValidXPosition=checkForValidBinPosition(testChip);
 
 
+            //if the chip has finished dropping and has a valid x position,
+            //then set its velocity to 0 and place it so that it fits nicely in the bin
             if (finishedDropping && hasValidXPosition)
             {
                 testChip.setVelocity(0,0);
                 testChip.setPosition(position.x,505+0.5-allPegs[0].getRadius()-testChip.getRadius());
             }
-        //this is where the funky stuff happens!
+        //This takes care of the case for if the chip has not landed in a bin, or
+        //if it hasn't finished dropping.
             else
             {
                 for (int j=0; j<350; j++)
@@ -311,13 +313,14 @@ void gamefunc(char c)
                     {
                         while (!hasValidXPosition)
                         {
+                            //do momentum transfer and update position of the chip
                             MomentumTransfer(testChip,allPegs[j]);
                             hasValidXPosition=checkForValidBinPosition(testChip);
                             testChip.setNextPosition();
                             testChip.setPosition(testChip.getNextPosition().x,testChip.getNextPosition().y);
                             testChip.applyGravity();
 
-                            //redrawing the updated position
+                            //redrawing the updated position for smoothness
                             window.clear(sf::Color::White);
                             for (int i=0; i<allPegs.size(); i++)
                                     {window.draw(allPegs[i]);}
@@ -340,10 +343,11 @@ void gamefunc(char c)
                 }
             }
 
+            //initializing
             double binwidth=55.5;
             int money=0;
 
-        //editing this section
+        //This section determines the amount of money awarded depending on the bin.
             if(position.y>=485 && finishedDropping)
             {
                 isInBin=1;
@@ -376,9 +380,10 @@ void gamefunc(char c)
             //initializing bounceCount vector
             if (colorCounter==0)
                 bounceCount.resize(allPegs.size(),0);
-                //kept the index of i the same by making the vector to include all pegs
+                //Kept the index of i the same by making the vector to include all pegs.
+                //Note: only the board pegs will be lit up.
 
-            //changing pegs that have a collision with the chip
+            //changing board pegs that have a collision with the chip
             for (int i=350; i<allPegs.size(); i++)
             {
                 if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
@@ -405,9 +410,11 @@ void gamefunc(char c)
                 }
             }
 
+        //if the chip has reached a bin
             if(isInBin)
             {
-                if (chipCount==maxNumberOfChips) //this occurs when you run out of chips
+                //This if statement occurs when you run out of chips.
+                if (chipCount==maxNumberOfChips)
                 {
                     chipCanDrop=0;
                     gamemusic.stop();
@@ -418,7 +425,7 @@ void gamefunc(char c)
                 mouseWasPressed=0;
                 chipError.setString("Move Mouse to Top of Board\n \n       to Drop Next Chip");
                 chipError.setPosition(window_width/7.5, window_height/4.2);
-                //Failsafe for if the chip lands incorrectly.
+                //Setting the velocity to 0 is a failsafe for if the chip lands incorrectly.
                 //This will prevent the next chip from being affected.
                 testChip.setVelocity(0,0);
                 selectionMusic.play();
@@ -430,7 +437,6 @@ void gamefunc(char c)
 void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by reference
 {
     int pegSize = pegVec.size();
-    //int chipDiameter=30; //need to make this PlinkoChip().getRadius()*2
 
 
     for (int i=0; i<pegSize; i++)
@@ -446,9 +452,9 @@ void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by refer
             float distance=sqrt(xdistanceSquared+ydistanceSquared);
 
             double collisionDistance=45;
-            //2*pegVec[i].getRadius()+chipDiameter;
+            //==the chip diameter + 3*the peg diameter
 
-            //if a stone is to be created too close to a different stone, then reset this process
+            //if a peg is to be created too close to a different peg, then reset this process
             if(distance<=collisionDistance && i!=j)
             {
                 pegVec[i].setRandomPosition();
@@ -498,6 +504,7 @@ vector<Peg> setupOriginalBoard()
 }
 vector<Peg> setupRandomBoard()
 {
+    //Note: 65 pegs is the max number that can be realized in a reliable manner.
             vector<Peg> pegVec;
             for (int i=0; i<65; i++)
             {

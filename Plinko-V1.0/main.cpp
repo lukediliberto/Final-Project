@@ -10,6 +10,12 @@
 
 using namespace std;
 
+
+//Notes for running this program:
+    //Make sure that this program is created in an SFML project.
+    //You need to add the "sfml-audio" library.
+    //^^To do this: Project -> Build Options -> Linker Settings -> Add -> "sfml-audio" -> Ok
+
 int main()
 {
     //srand for random # generation should only be declared once per main execution
@@ -18,9 +24,7 @@ int main()
     int window_height = 500;
     //open the main menu
     menufunc(window_width, window_height);
-    //Note:
-    //Sometimes the chip appears to jump between bins at the very end.
-    //Need to add statements testing whether text and images are present.
+
     return EXIT_SUCCESS;
 }
 

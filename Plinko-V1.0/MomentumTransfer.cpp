@@ -50,9 +50,6 @@ void MomentumTransfer(PlinkoChip& c1, Peg& p1)
             v1normnew = sf::Vector2f((-v1norm+2*v2norm)*unitNormalVector.x,
                                     (-v1norm+2*v2norm)*unitNormalVector.y);
             sf::Vector2f c1vNew = sf::Vector2f(v1tannew+v1normnew);
-            //adding damping factor:
-            //c1vNew.x = c1vNew.x/p1.getDamping();
-            //c1vNew.y = c1vNew.y/p1.getDamping();
 
             //Note: this appears to work well!
             //damping factor (acts like gravity)
@@ -76,14 +73,14 @@ void MomentumTransfer(PlinkoChip& c1, Peg& p1)
                 }
         }
 
-    //this prevents the stones from "swirling" off each other
+    //This prevents the peg and chip from "swirling" off each other
         while (c1.getIsColliding())
         {
             //update position of Chip
             c1.setNextPosition();
             c1.setPosition(c1.getNextPosition().x,c1.getNextPosition().y);
             c1.applyGravity();
-            //^^This is the same thing as in main^^
+            //^^This is the same thing as in Game.cpp^^
 
             sf::Vector2f position1=c1.getPosition();
             sf::Vector2f position2=p1.getPosition();
