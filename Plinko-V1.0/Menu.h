@@ -5,6 +5,8 @@
 #include <SFML/Audio.hpp>
 #include "Game.h"
 #include "Peg.h"
+#include "PlinkoChip.h"
+class Mute;
 #include <iostream>
 #include <string>
 #include <vector>
@@ -36,10 +38,12 @@ class Menu
 
 };
 
-void menufunc(float width, float height);
-void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu menu);
-void pausefunc(float width, float height, sf::RenderWindow &window, sf::Sound &gamemusic);
-void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs);
+void menufunc(float width, float height, Mute &mute);
+void subfunc(float width, float height, Mute &mute, sf::RenderWindow &submenuwindow, Menu menu);
+void pausefunc(float width, float height, Mute &mute, sf::RenderWindow &window, sf::Sound &gamemusic, vector<Peg> allPegs,
+                PlinkoChip testChip, sf::Text binMoney[], sf::Sprite scoreboard, sf::Sprite rightPlinkoDoor,sf::Sprite brita,
+                sf::Text chipText, sf::Text moneyText);
+void winfunc(float width, float height, Mute &mute, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs);
 
 
 #endif // MENU_H

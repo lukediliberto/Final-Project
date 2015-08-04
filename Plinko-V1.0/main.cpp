@@ -7,7 +7,7 @@
 #include "MomentumTransfer.h"
 #include "Menu.h"
 #include "Game.h"
-
+#include "Mute.h"
 using namespace std;
 
 
@@ -22,9 +22,9 @@ int main()
     srand(time(NULL));
     int window_width = 500;
     int window_height = 500;
+    Mute mute(0); /*Initialize mute off*/
     //open the main menu
-    menufunc(window_width, window_height);
-
+    menufunc(window_width, window_height, mute);
     return EXIT_SUCCESS;
 }
 

@@ -5,6 +5,7 @@
 #include "Peg.h"
 #include "MomentumTransfer.h"
 #include "Menu.h"
+#include "Mute.h"
 #include <SFML/Audio.hpp>
 #include <string>
 
@@ -18,7 +19,7 @@ vector<Peg> setupRandomBoard();
 vector<Peg> setupBinPegs();
 vector<Peg> setupBottomPegs();
 
-void gamefunc(char c)
+void gamefunc(char c, Mute &mute)
 {
     int maxNumberOfChips=3;
     int totalMoney=0;
@@ -82,6 +83,7 @@ void gamefunc(char c)
 
     //sounds
     sf::Sound collisionSound, selectionMusic, gamebeep, gamemusic;
+    mute.muteSet(gamemusic);
     sf::SoundBuffer collisionBuffer, gameplayBuffer, beepBuffer, selectionBuffer;
     collisionBuffer.loadFromFile("boing.wav");
     collisionSound.setBuffer(collisionBuffer);
@@ -94,6 +96,7 @@ void gamefunc(char c)
     gamemusic.play();
     gamemusic.setLoop(true);
     selectionMusic.play();
+
     // Load a sprite to display
     sf::Texture scoreboardTexture;
     scoreboardTexture.loadFromFile("scoreboard.png"); //put possible failure statement here
@@ -179,6 +182,7 @@ void gamefunc(char c)
 	// Start the game loop
     while (window.isOpen())
     {
+    mute.muteSet(gamemusic);
         // Process events
         sf::Event event;
         while (window.pollEvent(event))
@@ -189,7 +193,8 @@ void gamefunc(char c)
 
             //P Pressed: Pause
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
-                {pausefunc(window_width, window_height, window, gamemusic);}
+                {pausefunc(window_width, window_height, mute, window, gamemusic, allPegs, testChip, binMoney,
+                scoreboard, rightPlinkoDoor, brita, chipText, moneyText);}
 
             //Mouse moved
             if(event.type == sf::Event::MouseMoved && counter == 0)
@@ -418,7 +423,7 @@ void gamefunc(char c)
                 {
                     chipCanDrop=0;
                     gamemusic.stop();
-                    winfunc(window_width, window_height, window, c, totalMoney, allPegs);
+                    winfunc(window_width, window_height, mute, window, c, totalMoney, allPegs);
                 }
                 chipError.setColor(sf::Color::Blue);
                 counter=0;

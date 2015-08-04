@@ -7,6 +7,7 @@
 #include <vector>
 #include <fstream>
 #include <unistd.h>
+#include "Mute.h"
 
 using namespace std;
 
@@ -96,11 +97,12 @@ void Menu::SetTextColor(sf::Color color)
 }
 
 //MAIN MENU
-void menufunc(float width, float height)
+void menufunc(float width, float height, Mute &mute)
 {
     vector<string> menuitems;
     menuitems.push_back("Play");
     menuitems.push_back("Quit");
+    menuitems.push_back(mute.getText());
 
     // Create the main window
     sf::RenderWindow menuwindow(sf::VideoMode(width, height), "It's Menu Time!");
@@ -133,6 +135,7 @@ void menufunc(float width, float height)
 	// Start the menu loop
     while (menuwindow.isOpen())
     {
+    mute.muteSet(menuMusic);
         // Process events
         sf::Event event;
         while (menuwindow.pollEvent(event))
@@ -161,12 +164,17 @@ void menufunc(float width, float height)
                         case 0:
                             menuMusic.stop();
                             selectionMusic.play();
-                            subfunc(width, height, menuwindow, menu);
+                            subfunc(width, height, mute, menuwindow, menu);
                             break;
                         //quit
                         case 1:
                             menuMusic.stop();
                             menuwindow.close();
+                            break;
+                        case 2:
+                            mute.flip();
+                            mute.muteSet(menuMusic);
+                            menu.SetMenuItems(2,mute.getText());
                             break;
                         }
                 }
@@ -184,7 +192,7 @@ void menufunc(float width, float height)
 
 }
 
-void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu menu)
+void subfunc(float width, float height, Mute &mute, sf::RenderWindow &submenuwindow, Menu menu)
 {
     vector<string> subitems;
     subitems.push_back("Play Original");
@@ -230,12 +238,12 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
                         //original mode
                         case 0:
                             submenuwindow.close();
-                            gamefunc('O');
+                            gamefunc('O', mute);
                             break;
                         //random mode
                         case 1:
                             submenuwindow.close();
-                            gamefunc('R');
+                            gamefunc('R', mute);
                             break;
                         //back to main menu
                         case 2:
@@ -258,11 +266,14 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
 }
 
 //PAUSE MENU
-void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sound &gamemusic)
+void pausefunc(float width, float height, Mute &mute, sf::RenderWindow &pausewindow, sf::Sound &gamemusic,
+                vector <Peg> allPegs, PlinkoChip testChip, sf::Text binMoney[], sf::Sprite scoreboard,
+                sf::Sprite rightPlinkoDoor,sf::Sprite brita, sf::Text chipText, sf::Text moneyText)
 {
     vector<string> pauseitems;
     pauseitems.push_back("Resume");
     pauseitems.push_back("Main Menu");
+    pauseitems.push_back(mute.getText());
     pauseitems.push_back("Quit");
 
     Menu pausemenu(width, height, pauseitems.size(), sf::Color::Magenta, 24);
@@ -275,6 +286,8 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
 	// Start the pause loop
     while (pausewindow.isOpen())
     {
+    pausewindow.clear(sf::Color::White);
+
         // Process events
         sf::Event event;
         while (pausewindow.pollEvent(event))
@@ -307,10 +320,16 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
                         case 1:
                             gamemusic.stop();
                             pausewindow.close();
-                            menufunc(500, 500);
+                            menufunc(500, 500, mute);
+                            break;
+                        //Mute
+                        case 2:
+                            mute.flip();
+                            mute.muteSet(gamemusic);
+                            pausemenu.SetMenuItems(2,mute.getText());
                             break;
                         //quit
-                        case 2:
+                        case 3:
                             gamemusic.stop();
                             pausewindow.close();
                             break;
@@ -324,6 +343,17 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
             break;
         //draw pause menu
         pausemenu.draw(pausewindow);
+
+        for (int i=0; i<allPegs.size(); i++)
+            {pausewindow.draw(allPegs[i]);}
+        pausewindow.draw(testChip);
+        for(int i = 0; i<9; i++)
+            pausewindow.draw(binMoney[i]);
+        pausewindow.draw(scoreboard);
+        pausewindow.draw(brita);
+        pausewindow.draw(rightPlinkoDoor);
+        pausewindow.draw(chipText);
+        pausewindow.draw(moneyText);
         pausewindow.display();
     }
 
@@ -336,10 +366,11 @@ vector<userscore> getLeaderBoard(char c);
 int getUserRank(vector<userscore> leaderboard, int score);
 void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard);
 
-void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs)
+void winfunc(float width, float height, Mute &mute, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs)
 {
     //end of game music
     sf::Sound winmusic;
+    mute.muteSet(winmusic);
     sf::SoundBuffer winbuffer;
     if(cash > 0)
         winbuffer.loadFromFile("winmusic.wav");
@@ -483,7 +514,7 @@ int usrcount = 0;
                                     {userstr.erase(userstr.size() - 1);
                                     leaderboard[userRank].name = userstr;
                                     usrcount--;}
-                                    catch(std::out_of_range)
+                                    catch(out_of_range)
                                     {break;}
                                 break;
                         }
@@ -516,13 +547,13 @@ int usrcount = 0;
                             case 0:
                                 winmusic.stop();
                                 winwindow.close();
-                                gamefunc(c);
+                                gamefunc(c, mute);
                                 break;
                             //main menu
                             case 1:
                                 winmusic.stop();
                                 winwindow.close();
-                                menufunc(500, 500);
+                                menufunc(500, 500, mute);
                                 break;
                             //quit
                             case 2:
@@ -657,7 +688,7 @@ vector<userscore> getLeaderBoard(char c)
                 i++;
             }
         infile.close();
-        std::sort(leaderboard.begin(), leaderboard.end(),byScoreDesc);
+        sort(leaderboard.begin(), leaderboard.end(),byScoreDesc);
         for(int i = 0; i<10; i++)
 
         return leaderboard;
