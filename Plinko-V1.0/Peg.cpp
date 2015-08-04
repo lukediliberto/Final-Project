@@ -11,7 +11,19 @@ Peg::Peg()
     setPointCount(100);
     velocity.x=0;
     velocity.y=0;
-
+    collisionCount = 0;
+    colorChange = false;
+}
+Peg::Peg(bool colorChange)
+{
+    setRadius(5);
+    setFillColor(sf::Color::Black);
+    setOrigin(sf::Vector2f(5,5));
+    setPointCount(100);
+    velocity.x=0;
+    velocity.y=0;
+    collisionCount = 0;
+    colorChange;
 }
 
 void Peg::setVelocity(float xspeed,float yspeed)
@@ -52,3 +64,22 @@ void Peg::setRandomPosition()
     setPosition(xposition,yposition);
 }
 
+void Peg::colorTransit()
+{
+    if(colorChange)
+    {
+        if(collisionCount%5==0)
+            setFillColor(sf::Color::Magenta);
+        else if (collisionCount%5==1)
+            setFillColor(sf::Color::Red);
+        else if (collisionCount%5==2)
+            setFillColor(sf::Color::Green);
+        else if (collisionCount%5==3)
+            setFillColor(sf::Color::Blue);
+        else
+            setFillColor(sf::Color::Cyan);
+    }
+}
+
+bool Peg::getColorChange()
+    {return colorChange;}

@@ -2,6 +2,7 @@
 #include <SFML/Audio.hpp>
 #include "Menu.h"
 #include "Game.h"
+#include "ripple.h"
 #include <iostream>
 #include <string>
 #include <vector>
@@ -268,7 +269,7 @@ void subfunc(float width, float height, Mute &mute, sf::RenderWindow &submenuwin
 //PAUSE MENU
 void pausefunc(float width, float height, Mute &mute, sf::RenderWindow &pausewindow, sf::Sound &gamemusic,
                 vector <Peg> allPegs, PlinkoChip testChip, sf::Text binMoney[], sf::Sprite scoreboard,
-                sf::Sprite rightPlinkoDoor,sf::Sprite brita, sf::Text chipText, sf::Text moneyText)
+                sf::Sprite rightPlinkoDoor,sf::Sprite brita, sf::Text chipText, sf::Text moneyText, vector<Ripple> ripples)
 {
     vector<string> pauseitems;
     pauseitems.push_back("Resume");
@@ -346,6 +347,8 @@ void pausefunc(float width, float height, Mute &mute, sf::RenderWindow &pausewin
 
         for (int i=0; i<allPegs.size(); i++)
             {pausewindow.draw(allPegs[i]);}
+        for(int i = 0; i<ripples.size();i++)
+            {pausewindow.draw(ripples[i]);}
         pausewindow.draw(testChip);
         for(int i = 0; i<9; i++)
             pausewindow.draw(binMoney[i]);

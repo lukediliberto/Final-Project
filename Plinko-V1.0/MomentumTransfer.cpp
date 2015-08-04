@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "MomentumTransfer.h"
+#include "ripple.h"
 
 using namespace std;
 
@@ -95,4 +96,8 @@ void MomentumTransfer(PlinkoChip& c1, Peg& p1)
                 c1.setIsColliding(0);
             }
         }
+        p1.collisionCount++;
+        p1.colorTransit();
+
+        return;
 }

@@ -6,6 +6,7 @@
 #include "Game.h"
 #include "Peg.h"
 #include "PlinkoChip.h"
+class Ripple;
 class Mute;
 #include <iostream>
 #include <string>
@@ -42,7 +43,7 @@ void menufunc(float width, float height, Mute &mute);
 void subfunc(float width, float height, Mute &mute, sf::RenderWindow &submenuwindow, Menu menu);
 void pausefunc(float width, float height, Mute &mute, sf::RenderWindow &window, sf::Sound &gamemusic, vector<Peg> allPegs,
                 PlinkoChip testChip, sf::Text binMoney[], sf::Sprite scoreboard, sf::Sprite rightPlinkoDoor,sf::Sprite brita,
-                sf::Text chipText, sf::Text moneyText);
+                sf::Text chipText, sf::Text moneyText, vector<Ripple>);
 void winfunc(float width, float height, Mute &mute, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs);
 
 

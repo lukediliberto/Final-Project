@@ -6,6 +6,7 @@
 #include "MomentumTransfer.h"
 #include "Menu.h"
 #include "Mute.h"
+#include "ripple.h"
 #include <SFML/Audio.hpp>
 #include <string>
 
@@ -26,7 +27,7 @@ void gamefunc(char c, Mute &mute)
     int chipCount=0;
     int round = 0;
 
-    int FRAME_RATE = 60;
+    int FRAME_RATE = 30;
     int window_width = 500;
     int window_height = 685;
     bool windowbound = true;
@@ -111,7 +112,7 @@ void gamefunc(char c, Mute &mute)
 
     sf::Sprite scoreboard(scoreboardTexture);
     scoreboard.setPosition(175,510);
-//685
+
     sf::Sprite brita(britaTexture);
     brita.setPosition(335,513);
     brita.setScale(.5,.5);
@@ -146,6 +147,7 @@ void gamefunc(char c, Mute &mute)
     vector<Peg> binPegs;
     vector<Peg> bottomPegs;
     vector<Peg> allPegs;
+    vector<Ripple> ripples;
 
     int colorCounter=0; //for intializing the vector for colors
     vector<int> bounceCount;
@@ -178,6 +180,7 @@ void gamefunc(char c, Mute &mute)
     allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
     allPegs.insert(allPegs.end(),binPegs.begin(),binPegs.end());
     allPegs.insert(allPegs.end(),boardPegs.begin(),boardPegs.end());
+    float maxRipRadius = sqrt(pow(window_width,2)+pow(window_height,2));
 ////////////////////////////////////////////////////////////////////////////////////////
 	// Start the game loop
     while (window.isOpen())
@@ -194,7 +197,7 @@ void gamefunc(char c, Mute &mute)
             //P Pressed: Pause
             if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::P)
                 {pausefunc(window_width, window_height, mute, window, gamemusic, allPegs, testChip, binMoney,
-                scoreboard, rightPlinkoDoor, brita, chipText, moneyText);}
+                scoreboard, rightPlinkoDoor, brita, chipText, moneyText, ripples);}
 
             //Mouse moved
             if(event.type == sf::Event::MouseMoved && counter == 0)
@@ -218,6 +221,12 @@ void gamefunc(char c, Mute &mute)
 
 ////////////////////////////////////////////////////////////////////////////////////////
         // Clear screen
+        //delete ripples that are out of window -- saves comput
+        for(int i = 0; i<ripples.size();i++)
+            {ripples[i].updateRipple();
+            if(ripples[i].getRadius()>maxRipRadius)
+                ripples.erase(ripples.begin()+i);}
+
         window.clear(sf::Color::White);
 
         // Draw the sprite
@@ -241,6 +250,8 @@ void gamefunc(char c, Mute &mute)
         if(round == 2 && leftPlinkoDoor.getPosition().x ==-180 && rightPlinkoDoor.getPosition().x<1000)
             {rightPlinkoDoor.move(5,0);
             rightPlinkoDoor.rotate(20);}
+        for(int i = 0; i<ripples.size();i++)
+            {window.draw(ripples[i]);}
 
         // Update the window
         window.display();
@@ -266,7 +277,18 @@ void gamefunc(char c, Mute &mute)
             {
                 if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
                                 (testChip.getRadius()+allPegs[i].getRadius()))
-                        {MomentumTransfer(testChip,allPegs[i]);}
+                        {
+                            MomentumTransfer(testChip,allPegs[i]);
+                            //Generate ripple for board pegs
+                            if( i >= 350 && i<=allPegs.size())
+                            {
+                                float radVel = 5;
+                                Ripple rip(allPegs[i].getFillColor(), allPegs[i].getPosition().x,
+                                            allPegs[i].getPosition().y, allPegs[i].getRadius(), radVel);
+                                ripples.push_back(rip);
+                                collisionSound.play();
+                            }
+                        }
             }
 
             //update position of Chip
@@ -340,7 +362,9 @@ void gamefunc(char c, Mute &mute)
                             window.draw(mop);
                             window.draw(leftPlinkoDoor);
                             window.draw(rightPlinkoDoor);
-                            // Update the window
+                            for(int i = 0; i<ripples.size();i++)
+                                {window.draw(ripples[i]);}
+//                             Update the window
                             window.display();
                             window.setFramerateLimit(FRAME_RATE);
                         }
@@ -383,37 +407,37 @@ void gamefunc(char c, Mute &mute)
             }
 
             //initializing bounceCount vector
-            if (colorCounter==0)
-                bounceCount.resize(allPegs.size(),0);
-                //Kept the index of i the same by making the vector to include all pegs.
-                //Note: only the board pegs will be lit up.
-
-            //changing board pegs that have a collision with the chip
-            for (int i=350; i<allPegs.size(); i++)
-            {
-                if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
-                        (testChip.getRadius()+allPegs[i].getRadius()))
-                {
-                    //make boing sound
-                    collisionSound.play();
-
-                    //change color of peg depending on number of bounces on same peg
-                    //have it rotate through same few colors (total: 5)
-                    if (bounceCount[i]%5==0)
-                        allPegs[i].setFillColor(sf::Color::Magenta);
-                    else if (bounceCount[i]%5==1)
-                        allPegs[i].setFillColor(sf::Color::Red);
-                    else if (bounceCount[i]%5==2)
-                        allPegs[i].setFillColor(sf::Color::Green);
-                    else if (bounceCount[i]%5==3)
-                        allPegs[i].setFillColor(sf::Color::Blue);
-                    else
-                        allPegs[i].setFillColor(sf::Color::Cyan);
-
-                    bounceCount[i]++;
-                    colorCounter++;
-                }
-            }
+//            if (colorCounter==0)
+//                bounceCount.resize(allPegs.size(),0);
+//                //Kept the index of i the same by making the vector to include all pegs.
+//                //Note: only the board pegs will be lit up.
+//
+//            //changing board pegs that have a collision with the chip
+//            for (int i=350; i<allPegs.size(); i++)
+//            {
+//                if(getDistance(testChip.getNextPosition(),allPegs[i].getPosition())<=
+//                        (testChip.getRadius()+allPegs[i].getRadius()))
+//                {
+//                    //make boing sound
+//                    collisionSound.play();
+//
+//                    //change color of peg depending on number of bounces on same peg
+//                    //have it rotate through same few colors (total: 5)
+//                    if (bounceCount[i]%5==0)
+//                        allPegs[i].setFillColor(sf::Color::Magenta);
+//                    else if (bounceCount[i]%5==1)
+//                        allPegs[i].setFillColor(sf::Color::Red);
+//                    else if (bounceCount[i]%5==2)
+//                        allPegs[i].setFillColor(sf::Color::Green);
+//                    else if (bounceCount[i]%5==3)
+//                        allPegs[i].setFillColor(sf::Color::Blue);
+//                    else
+//                        allPegs[i].setFillColor(sf::Color::Cyan);
+//
+//                    bounceCount[i]++;
+//                    colorCounter++;
+//                }
+//            }
 
         //if the chip has reached a bin
             if(isInBin)
@@ -479,7 +503,7 @@ vector<Peg> setupOriginalBoard()
             //creating oddPegs vector
             vector<Peg> oddPegs;
             for (int i=0; i<36; i++)
-                {oddPegs.push_back(Peg());}
+                {oddPegs.push_back(Peg(true));}
             int oddSIZE=oddPegs.size();
             int oddLine=0;
             for (int i=0; i<oddSIZE; i++)
@@ -493,7 +517,7 @@ vector<Peg> setupOriginalBoard()
             //creating evenPegs vector
             vector<Peg> evenPegs;
             for (int i=0; i<40; i++)
-                {evenPegs.push_back(Peg());}
+                {evenPegs.push_back(Peg(true));}
             int evenSIZE=evenPegs.size();
             int evenLine=0;
             for (int i=0; i<evenSIZE; i++)
@@ -513,7 +537,7 @@ vector<Peg> setupRandomBoard()
             vector<Peg> pegVec;
             for (int i=0; i<65; i++)
             {
-                pegVec.push_back(Peg());
+                pegVec.push_back(Peg(true));
                 pegVec[i].setRandomPosition();
             }
             checkForUniquePosition(pegVec);

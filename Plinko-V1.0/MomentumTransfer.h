@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include "Peg.h"
 #include "PlinkoChip.h"
+#include "ripple.h"
 
 using namespace std;
 
