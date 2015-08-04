@@ -12,6 +12,7 @@ using namespace std;
 
 int FRAME_RATE = 10;
 
+//Menu constructor
 Menu::Menu(float width, float height, int num, sf::Color color = sf::Color::Magenta, unsigned int textsize = 30)
 {
     NUM_ITEMS = num;
@@ -19,6 +20,7 @@ Menu::Menu(float width, float height, int num, sf::Color color = sf::Color::Mage
 
     if(!font.loadFromFile("PLINKO2K.TTF"))
         cout<<"Error loading Font (Menu Constructor)"<<endl;
+
 
     for(int i = 0; i<NUM_ITEMS; i++)
     {
@@ -33,12 +35,14 @@ Menu::Menu(float width, float height, int num, sf::Color color = sf::Color::Mage
 
 }
 
+//draw menu on the window passed
 void Menu::draw(sf::RenderWindow &window)
 {
     for(int i = 0; i < NUM_ITEMS; i++)
         window.draw(menuText[i]);
 }
 
+//change selected item when keyboard pressed up
 void Menu::MoveUp()
 {
     if(selectedIndex > 0)
@@ -49,6 +53,7 @@ void Menu::MoveUp()
     }
 }
 
+//change selected item when keyboard pressed down
 void Menu::MoveDown()
 {
     if(selectedIndex < NUM_ITEMS - 1)
@@ -58,32 +63,33 @@ void Menu::MoveDown()
         menuText[selectedIndex].setColor(textcolor);
     }
 }
-
+//return index of selected item
 int Menu::GetSelected()
 {
     return selectedIndex;
 }
-
+//set strings for menu options
 void Menu::SetMenuItems(int index, string text)
 {
     menuText[index].setString(text);
 }
 
+//set number of menu options
 void Menu::SetNumItems(int num)
 {
     NUM_ITEMS = num;
 }
-
+//return number of menu options
 int Menu::GetNumItems()
 {
     return NUM_ITEMS;
 }
-
+//set position of menu items
 void Menu::SetTextPosition(int index, float x, float y)
 {
     menuText[index].setPosition(sf::Vector2f(x,y));
 }
-
+//set color of menu items
 void Menu::SetTextColor(sf::Color color)
 {
     textcolor = color;
@@ -94,8 +100,8 @@ void menufunc(float width, float height)
 {
     vector<string> menuitems;
     menuitems.push_back("Play");
-    //menuitems.push_back("Play Random");
     menuitems.push_back("Quit");
+
     // Create the main window
     sf::RenderWindow menuwindow(sf::VideoMode(width, height), "It's Menu Time!");
     menuwindow.setFramerateLimit(FRAME_RATE);
@@ -103,8 +109,10 @@ void menufunc(float width, float height)
 
     Menu menu(width, height, menuitems.size());
 
+    //set menu options
     for(int i = 0; i<menuitems.size(); i++)
         {menu.SetMenuItems(i, menuitems[i]);};
+
     // Load a sprite to display
     sf::Texture texture;
     if (!texture.loadFromFile("Plinko4.png"))
@@ -121,7 +129,8 @@ void menufunc(float width, float height)
     menuMusic.play();
     menuMusic.setLoop(true);
     selectionMusic.setBuffer(selectionBuffer);
-	// Start the game loop
+
+	// Start the menu loop
     while (menuwindow.isOpen())
     {
         // Process events
@@ -144,22 +153,17 @@ void menufunc(float width, float height)
                     case sf::Keyboard::Down:
                         menu.MoveDown();
                         break;
-
+                    //Process menu selections
                     case sf::Keyboard::Return:
                         switch(menu.GetSelected())
                         {
+                        //open sub menu
                         case 0:
                             menuMusic.stop();
                             selectionMusic.play();
-                            //menuwindow.close();
                             subfunc(width, height, menuwindow, menu);
                             break;
-                        /*case 1:
-                            menuMusic.stop();
-                            selectionMusic.play();
-                            menuwindow.close();
-                            gamefunc('r');
-                            break;*/
+                        //quit
                         case 1:
                             menuMusic.stop();
                             menuwindow.close();
@@ -171,7 +175,7 @@ void menufunc(float width, float height)
         }
         // Clear screen
         menuwindow.clear(sf::Color::White);
-        //Draw menuwindow
+        //Draw main menu and background
         menuwindow.draw(sprite);
         menu.draw(menuwindow);
         // Update the window
@@ -196,19 +200,8 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
     for(int i = 0; i<subitems.size(); i++)
         {submenu.SetMenuItems(i, subitems[i]);};
 
-    // Load a sprite to display
-    /*sf::Texture texture;
-    if (!texture.loadFromFile("SubMenu.png"))
-        cout<<"Error loading Picture (SubMenu)";
-    sf::Sprite sprite(texture);
-    sprite.setScale(10, .082);
-    sprite.setPosition(width/3.6, height*2.8/5 + 35);*/
-
-    //sprite.setScale(.30, .1);
-    //sprite.setPosition(width/4.8, height*2.8/5 + 35);
-
     int mode = -1;
-	// Start the game loop
+	// Start the sub menu loop
     while (submenuwindow.isOpen())
     {
         // Process events
@@ -230,18 +223,21 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
                     case sf::Keyboard::Down:
                         submenu.MoveDown();
                         break;
-
+                    //Process submenu selections
                     case sf::Keyboard::Return:
                         switch(submenu.GetSelected())
                         {
+                        //original mode
                         case 0:
                             submenuwindow.close();
                             gamefunc('O');
                             break;
+                        //random mode
                         case 1:
                             submenuwindow.close();
                             gamefunc('R');
                             break;
+                        //back to main menu
                         case 2:
                             mode = 0;
                             break;
@@ -250,12 +246,10 @@ void subfunc(float width, float height, sf::RenderWindow &submenuwindow, Menu me
             break;
             }
         }
-
+        //if back selected, function exits
         if(mode == 0)
             break;
-        // Clear screen
-        //Draw menuwindow
-        //submenuwindow.draw(sprite);
+        //Draw sub menu
         submenu.draw(submenuwindow);
         // Update the window
         submenuwindow.display();
@@ -278,7 +272,7 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
 
 
     int mode = -1;
-	// Start the game loop
+	// Start the pause loop
     while (pausewindow.isOpen())
     {
         // Process events
@@ -301,18 +295,21 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
                     case sf::Keyboard::Down:
                         pausemenu.MoveDown();
                         break;
-
+                    //Process pause menu selections
                     case sf::Keyboard::Return:
                         switch(pausemenu.GetSelected())
                         {
+                        //return to game
                         case 0:
                             mode = 0;
                             break;
+                        //return to main menu
                         case 1:
                             gamemusic.stop();
                             pausewindow.close();
                             menufunc(500, 500);
                             break;
+                        //quit
                         case 2:
                             gamemusic.stop();
                             pausewindow.close();
@@ -322,10 +319,10 @@ void pausefunc(float width, float height, sf::RenderWindow &pausewindow, sf::Sou
             break;
             }
         }
-
+        //if resume game selected, function exits
         if(mode == 0)
             break;
-
+        //draw pause menu
         pausemenu.draw(pausewindow);
         pausewindow.display();
     }
@@ -341,7 +338,7 @@ void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard);
 
 void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int cash, vector<Peg> allPegs)
 {
-
+    //end of game music
     sf::Sound winmusic;
     sf::SoundBuffer winbuffer;
     if(cash > 0)
@@ -353,8 +350,9 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
     winmusic.play();
 
     sf::Font font;
-    if(!font.loadFromFile("PLINKO2K.TTF"));
+    if(!font.loadFromFile("PLINKO2K.TTF"))
         cout<<"Error loading font (WinFunc)"<<endl;
+    //set textures
     sf::Texture scoreboardTexture;
     scoreboardTexture.loadFromFile("scoreboard.png"); //put possible failure statement here
     sf::Sprite scoreboard(scoreboardTexture);
@@ -397,8 +395,10 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
 
     sf::Text finalDialogue;
 
+    //return highscores for game mode
     vector <userscore> leaderboard = getLeaderBoard(c);
     bool awaitNameEntry = false;
+    //determine user rank
     int userRank = getUserRank(leaderboard,cash);
     userscore current;
     current.name = "";
@@ -414,7 +414,7 @@ void winfunc(float width, float height, sf::RenderWindow &winwindow, char c, int
     else if(cash != 0)
         money="Congratulations!!!\n\n   You win: $"+ money;
     else if(cash == 0)
-        money="You win $0\nBetter Luck Next Time";//POSTION THIS TEXT IN CENTER
+        money="You win $0\nBetter Luck Next Time";
     finalDialogue.setFont(font);
     finalDialogue.setCharacterSize(24);
     finalDialogue.setColor(sf::Color::Green);
@@ -461,6 +461,7 @@ int usrcount = 0;
                 {
                     case sf::Event::Closed:
                         winwindow.close();
+                    //Process name entered
                     case sf::Event::TextEntered:
                         if (isalnum(event.text.unicode)&&usrcount <7 )
                         {
@@ -489,6 +490,7 @@ int usrcount = 0;
                 }
             }
         }
+        //After name entered, open final menu
         if(!awaitNameEntry)
         {
             while (winwindow.pollEvent(event))
@@ -510,20 +512,24 @@ int usrcount = 0;
                         case sf::Keyboard::Return:
                             switch(winmenu.GetSelected())
                              {
+                            //Play again
                             case 0:
                                 winmusic.stop();
                                 winwindow.close();
                                 gamefunc(c);
                                 break;
+                            //main menu
                             case 1:
                                 winmusic.stop();
                                 winwindow.close();
                                 menufunc(500, 500);
                                 break;
+                            //quit
                             case 2:
                                 winmusic.stop();
                                 winwindow.close();
                                 break;
+                            //clear highscores
                             case 3:
                                 for(int i = 0; i<10; i++)
                                     {leaderboard[i].name = "-";
@@ -545,7 +551,8 @@ int usrcount = 0;
 //Clearing window allows for the Leaderboard to be update in screen but prevents the color changing pegs.
 ////////////////////////////////////////////////////////////////////////////////////////////
 //BLINK RATE METHOD BEGIN
-        int blinkrate = 30;
+    //alternate colors of board pegs
+    int blinkrate = 30;
     if(cash > 0)
     {
         for(int i = 0; i<allPegs.size(); i++)
@@ -655,6 +662,7 @@ vector<userscore> getLeaderBoard(char c)
 
         return leaderboard;
     }
+//write updates to highscores file
 void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard)
     {
         ofstream outFile;
@@ -667,6 +675,7 @@ void writeLeaderBoardFile(char c, const vector<userscore> &leaderboard)
             {outFile << leaderboard[i].name << " " << leaderboard[i].score << "\n";}
         outFile.close();
     }
+//determine user rank in current highscores
 int getUserRank(vector<userscore> leaderboard, int score)
     {
     for(int i = 0; i<9; i++)

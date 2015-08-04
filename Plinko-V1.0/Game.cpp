@@ -51,7 +51,7 @@ void gamefunc(char c)
     moneyText.setColor(sf::Color::Magenta);
 
 ////////////////////////////////////////////////////////////////////////////////////////
-
+    //set strings for each bin
     sf::Text binMoney[9];
     binMoney[0].setString("$\n1\n0\n0");
     binMoney[1].setString("$\n5\n0\n0");
@@ -126,7 +126,7 @@ void gamefunc(char c)
     rightPlinkoDoor.setOrigin(415,599);
     rightPlinkoDoor.setPosition(408,614);
 
-
+    //set money won and chips remaining
     string initialMoney=to_string(totalMoney);
 
     moneyText.setString("$"+initialMoney);
@@ -161,10 +161,14 @@ void gamefunc(char c)
 
 ////////////////////////////////////////////////////////////////////////////////////////
     //Set up the Board and Bins
+
+    //original game
     if(c == 'O')
         {boardPegs = setupOriginalBoard();}
+    //random game
     if (c == 'R')
         {boardPegs = setupRandomBoard();}
+
     binPegs = setupBinPegs();
     bottomPegs = setupBottomPegs();
     allPegs.insert(allPegs.end(),bottomPegs.begin(),bottomPegs.end());
@@ -312,7 +316,6 @@ void gamefunc(char c)
                             testChip.setNextPosition();
                             testChip.setPosition(testChip.getNextPosition().x,testChip.getNextPosition().y);
                             testChip.applyGravity();
-                            //cout << "Checking..." << endl;
 
                             //redrawing the updated position
                             window.clear(sf::Color::White);
@@ -411,7 +414,6 @@ void gamefunc(char c)
                     winfunc(window_width, window_height, window, c, totalMoney, allPegs);
                 }
                 chipError.setColor(sf::Color::Blue);
-                //chipError.setString("Move Mouse to Top \n \n    of Board\n \nto Drop Next Chip");
                 counter=0;
                 mouseWasPressed=0;
                 chipError.setString("Move Mouse to Top of Board\n \n       to Drop Next Chip");
@@ -423,7 +425,6 @@ void gamefunc(char c)
             }
         }
     }
-//    return EXIT_SUCCESS;
 }
 
 void checkForUniquePosition (vector<Peg> &pegVec) //need to pass vector by reference
@@ -506,6 +507,7 @@ vector<Peg> setupRandomBoard()
             checkForUniquePosition(pegVec);
             return pegVec;
 }
+
 vector<Peg> setupBinPegs()
 {
         vector<Peg> binPegs;
@@ -522,6 +524,7 @@ vector<Peg> setupBinPegs()
 
             return binPegs;
 }
+
 vector<Peg> setupBottomPegs()
 {
             vector<Peg> bottomPegs;

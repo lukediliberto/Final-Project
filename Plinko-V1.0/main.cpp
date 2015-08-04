@@ -16,6 +16,7 @@ int main()
     srand(time(NULL));
     int window_width = 500;
     int window_height = 500;
+    //open the main menu
     menufunc(window_width, window_height);
     //Note:
     //Sometimes the chip appears to jump between bins at the very end.
